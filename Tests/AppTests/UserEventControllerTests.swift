@@ -28,4 +28,26 @@ final class UserEventControllerTests: XCTestCase {
             XCTAssertEqual(res.body.string, "")
         })
     }
+    
+    func test_get_with_no_query_returns_404() throws {
+        
+        try sut.test(.GET, UserEventController.userevents, afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_put_returns_404() throws {
+
+        try sut.test(.PUT, UserEventController.userevents, afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_delete_returns_404() throws {
+
+        try sut.test(.DELETE, UserEventController.userevents, afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
 }
