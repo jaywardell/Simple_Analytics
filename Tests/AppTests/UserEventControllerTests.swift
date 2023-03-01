@@ -37,7 +37,20 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
-    
+    func test_post_responds_with_422_if_body_is_empty_string() throws {
+
+        try sut.test(.POST, UserEventController.userevents, headers: headers, body: ByteBuffer(string: "")) { response in
+            XCTAssertEqual(response.status, .unprocessableEntity)
+        }
+    }
+
+    func test_post_responds_with_400_if_body_is_empty_json() throws {
+
+        try sut.test(.POST, UserEventController.userevents, headers: headers, body: ByteBuffer(string: "{}")) { response in
+            XCTAssertEqual(response.status, .badRequest)
+        }
+    }
+
     func test_get_with_no_query_returns_404() throws {
         
         try sut.test(.GET, UserEventController.userevents, afterResponse: { res in
