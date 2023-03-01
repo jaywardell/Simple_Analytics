@@ -23,14 +23,14 @@ final class UserEventControllerTests: XCTestCase {
     
     func test_post_responds_with_200() async throws {
 
-        try await testPOST(UserEvent(userID: exampleUserID).toByteBuffer()) { response in
+        try await testPOST(UserEvent(action: .start, userID: exampleUserID).toByteBuffer()) { response in
             XCTAssertEqual(response.status, .ok)
         }
     }
     
     func test_post_responds_with_UserEvent_that_was_passed_in() async throws {
 
-        let expected = UserEvent(userID: exampleUserID)
+        let expected = UserEvent(action: .start, userID: exampleUserID)
         try await testPOST(expected.toByteBuffer()) { response in
             let received = try JSONDecoder().decode(UserEvent.self, from: response.body)
             XCTAssertEqual(received, expected)
@@ -39,13 +39,51 @@ final class UserEventControllerTests: XCTestCase {
 
     func test_post_responds_with_UserEvent_with_same_flag_as_what_was_passed_in() async throws {
 
-        let sent = UserEvent(userID: exampleUserID, flag: true)
+        let sent = UserEvent(action: .start, userID: exampleUserID, flag: true)
         try await testPOST(sent.toByteBuffer()) { response in
             let received = try JSONDecoder().decode(UserEvent.self, from: response.body)
             XCTAssert(received.flag)
         }
     }
 
+    func test_post_responds_with_UserEvent_with_same_action_as_what_was_passed_in() async throws {
+
+        let sent = UserEvent(action: .pause, userID: exampleUserID, flag: true)
+        try await testPOST(sent.toByteBuffer()) { response in
+            let received = try JSONDecoder().decode(UserEvent.self, from: response.body)
+            XCTAssertEqual(received.action, sent.action)
+        }
+    }
+
+    private var exampleValidUserEventProperties: [String:Any] {
+        [
+            "id": UUID().uuidString,
+            "userID": UUID().uuidString,
+            "timestamp": Date().timeIntervalSinceReferenceDate.rounded(),
+            "flag": true,
+            "action": UserEvent.Action.start.rawValue
+        ]
+    }
+    
+    func test_post_responds_with_200_if_given_valid_json() async throws {
+                
+        let data = try JSONSerialization.data(withJSONObject: exampleValidUserEventProperties)
+        try await testPOST(ByteBuffer(data: data)) { response in
+            XCTAssertEqual(response.status, .ok)
+        }
+    }
+
+    func test_post_responds_with_400_if_given_unexpected_action() async throws {
+        
+        var invalidActionProperties = exampleValidUserEventProperties
+        invalidActionProperties["action"] = "something unexpected"
+        let data = try JSONSerialization.data(withJSONObject: invalidActionProperties)
+        
+        try await testPOST(ByteBuffer(data: data)) { response in
+            XCTAssertEqual(response.status, .badRequest)
+        }
+    }
+    
     func test_post_responds_with_422_if_body_is_empty_string() async throws {
 
         try await testPOST(ByteBuffer(string: "")) { response in

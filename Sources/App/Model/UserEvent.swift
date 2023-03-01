@@ -15,12 +15,18 @@ struct UserEvent: Content, Equatable {
     let flag: Bool
     let timestamp: InternalDate
     
-    init(userID: UUID, flag: Bool = false) {
+    enum Action: String, Codable {
+        case start, pause, stop
+    }
+    let action: Action
+    
+    init(action: Action, userID: UUID, flag: Bool = false) {
         self.id = UUID()
         
         self.userID = userID
         
         self.timestamp = InternalDate(Date())
         self.flag = flag
+        self.action = action
     }
 }
