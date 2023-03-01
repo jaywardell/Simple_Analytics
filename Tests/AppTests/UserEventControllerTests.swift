@@ -171,6 +171,15 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
+    func test_post_responds_with_415_if_given_no_headers() async throws {
+
+        let expected = UserEvent(action: .start, userID: exampleUserID)
+        try await testPOST(expected.toByteBuffer(), headers: HTTPHeaders()) { response in
+            XCTAssertEqual(response.status, .unsupportedMediaType)
+        }
+    }
+
+    
     func test_get_with_no_body_returns_404() throws {
         
         try sut.test(.GET, UserEventController.userevents, afterResponse: { res in
