@@ -21,37 +21,44 @@ final class UserEventControllerTests: XCTestCase {
         sut.shutdown()
     }
     
-    func test_post_responds_with_200() throws {
+    func test_post_responds_with_200() async throws {
 
-        try sut.test(.POST, UserEventController.userevents, headers: headers, body: UserEvent().toByteBuffer()) { response in
+        try await testPOST(UserEvent().toByteBuffer()) { response in
             XCTAssertEqual(response.status, .ok)
         }
     }
     
-    func test_post_responds_with_UserEvent_that_was_passed_in() throws {
+    func test_post_responds_with_UserEvent_that_was_passed_in() async throws {
 
         let expected = UserEvent()
-        try sut.test(.POST, UserEventController.userevents, headers: headers, body: expected.toByteBuffer()) { response in
+        try await testPOST(expected.toByteBuffer()) { response in
             let received = try JSONDecoder().decode(UserEvent.self, from: response.body)
             XCTAssertEqual(received, expected)
         }
     }
 
-    func test_post_responds_with_422_if_body_is_empty_string() throws {
+    func test_post_responds_with_422_if_body_is_empty_string() async throws {
 
-        try sut.test(.POST, UserEventController.userevents, headers: headers, body: ByteBuffer(string: "")) { response in
+        try await testPOST(ByteBuffer(string: "")) { response in
             XCTAssertEqual(response.status, .unprocessableEntity)
         }
     }
 
-    func test_post_responds_with_400_if_body_is_empty_json() throws {
+    func test_post_responds_with_400_if_body_is_unexpected_string() async throws {
 
-        try sut.test(.POST, UserEventController.userevents, headers: headers, body: ByteBuffer(string: "{}")) { response in
+        try await testPOST(ByteBuffer(string: "something unexpected")) { response in
             XCTAssertEqual(response.status, .badRequest)
         }
     }
 
-    func test_get_with_no_query_returns_404() throws {
+    func test_post_responds_with_400_if_body_is_empty_json() async throws {
+
+        try await testPOST(ByteBuffer(string: "{}")) { response in
+            XCTAssertEqual(response.status, .badRequest)
+        }
+    }
+
+    func test_get_with_no_body_returns_404() throws {
         
         try sut.test(.GET, UserEventController.userevents, afterResponse: { res in
             XCTAssertEqual(res.status, .notFound)
@@ -74,7 +81,14 @@ final class UserEventControllerTests: XCTestCase {
     
     // MARK: - Helpers
 
-    private var headers: HTTPHeaders { HTTPHeaders(dictionaryLiteral: ("content-type", "application/json")) }
+    private var defaultHeaders: HTTPHeaders { HTTPHeaders(dictionaryLiteral: ("content-type", "application/json")) }
+    
+    private func testPOST(_ byteBuffer: ByteBuffer,
+                         headers: HTTPHeaders? = nil,
+                         tests: (XCTHTTPResponse) async throws ->(),
+                         file: StaticString = #filePath, line: UInt = #line) async throws {
+        try await sut.test(.POST, UserEventController.userevents, headers: headers ?? defaultHeaders, body: byteBuffer, afterResponse: tests)
+    }
 }
 
 // MARK: - UserEvent: Helpers
