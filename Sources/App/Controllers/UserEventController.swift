@@ -21,7 +21,7 @@ extension UserEventController: RouteCollection {
     }
     
     func create(req: Request) async throws -> UserEvent {        
-        let greeting = try req.content.decode(UserEvent.self)
-        return greeting
+        let event = try req.content.decode(UserEvent.self)
+        return event
     }
 }
