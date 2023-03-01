@@ -21,17 +21,22 @@ final class UserEventControllerTests: XCTestCase {
         sut.shutdown()
     }
     
-    func test_post_returns_200() throws {
+    func test_post_responds_with_200() throws {
+
+        try sut.test(.POST, UserEventController.userevents, headers: headers, body: UserEvent().toByteBuffer()) { response in
+            XCTAssertEqual(response.status, .ok)
+        }
+    }
+    
+    func test_post_responds_with_UserEvent_that_was_passed_in() throws {
 
         let expected = UserEvent()
-        let body = try JSONEncoder().encodeAsByteBuffer(expected, allocator: .init())
-        let headers = HTTPHeaders(dictionaryLiteral: ("content-type", "application/json"))
-        try sut.test(.POST, UserEventController.userevents, headers: headers, body: body) { response in
-            XCTAssertEqual(response.status, .ok)
+        try sut.test(.POST, UserEventController.userevents, headers: headers, body: expected.toByteBuffer()) { response in
             let received = try JSONDecoder().decode(UserEvent.self, from: response.body)
             XCTAssertEqual(received, expected)
         }
     }
+
     
     func test_get_with_no_query_returns_404() throws {
         
@@ -53,5 +58,16 @@ final class UserEventControllerTests: XCTestCase {
             XCTAssertEqual(res.status, .notFound)
         })
     }
+    
+    // MARK: - Helpers
 
+    private var headers: HTTPHeaders { HTTPHeaders(dictionaryLiteral: ("content-type", "application/json")) }
+}
+
+// MARK: - UserEvent: Helpers
+
+fileprivate extension UserEvent {
+    func toByteBuffer() -> ByteBuffer {
+        try! JSONEncoder().encodeAsByteBuffer(self, allocator: .init())
+    }
 }
