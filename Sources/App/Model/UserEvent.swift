@@ -9,10 +9,14 @@ import Vapor
 
 struct UserEvent: Content, Equatable {
     let id: UUID
+    
+    let flag: Bool
     let timestamp: InternalDate
     
-    init() {
+    init(flag: Bool = false) {
         self.id = UUID()
+        
         self.timestamp = InternalDate(Date())
+        self.flag = flag
     }
 }

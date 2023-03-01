@@ -37,6 +37,15 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
+    func test_post_responds_with_UserEvent_with_same_flag_as_what_was_passed_in() async throws {
+
+        let sent = UserEvent(flag: true)
+        try await testPOST(sent.toByteBuffer()) { response in
+            let received = try JSONDecoder().decode(UserEvent.self, from: response.body)
+            XCTAssert(received.flag)
+        }
+    }
+
     func test_post_responds_with_422_if_body_is_empty_string() async throws {
 
         try await testPOST(ByteBuffer(string: "")) { response in
