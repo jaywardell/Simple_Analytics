@@ -84,6 +84,72 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
     
+    func test_post_responds_with_200_if_given_unexpected_extra_data_in_payload() async throws {
+        
+        var propertiesWithExtraValues = exampleValidUserEventProperties
+        propertiesWithExtraValues["some_other_key"] = "some_invalid_value"
+        let data = try JSONSerialization.data(withJSONObject: propertiesWithExtraValues)
+        
+        try await testPOST(ByteBuffer(data: data)) { response in
+            XCTAssertEqual(response.status, .ok)
+        }
+    }
+    
+    func test_post_responds_with_400_if_not_given_userID_in_payload() async throws {
+        
+        var propertiesWithMissingValues = exampleValidUserEventProperties
+        propertiesWithMissingValues.removeValue(forKey: "userID")
+        let data = try JSONSerialization.data(withJSONObject: propertiesWithMissingValues)
+        
+        try await testPOST(ByteBuffer(data: data)) { response in
+            XCTAssertEqual(response.status, .badRequest)
+        }
+    }
+
+    func test_post_responds_with_400_if_not_given_id_in_payload() async throws {
+        
+        var propertiesWithMissingValues = exampleValidUserEventProperties
+        propertiesWithMissingValues.removeValue(forKey: "id")
+        let data = try JSONSerialization.data(withJSONObject: propertiesWithMissingValues)
+        
+        try await testPOST(ByteBuffer(data: data)) { response in
+            XCTAssertEqual(response.status, .badRequest)
+        }
+    }
+
+    func test_post_responds_with_400_if_not_given_flag_in_payload() async throws {
+        
+        var propertiesWithMissingValues = exampleValidUserEventProperties
+        propertiesWithMissingValues.removeValue(forKey: "flag")
+        let data = try JSONSerialization.data(withJSONObject: propertiesWithMissingValues)
+        
+        try await testPOST(ByteBuffer(data: data)) { response in
+            XCTAssertEqual(response.status, .badRequest)
+        }
+    }
+
+    func test_post_responds_with_400_if_not_given_timestamp_in_payload() async throws {
+        
+        var propertiesWithMissingValues = exampleValidUserEventProperties
+        propertiesWithMissingValues.removeValue(forKey: "timestamp")
+        let data = try JSONSerialization.data(withJSONObject: propertiesWithMissingValues)
+        
+        try await testPOST(ByteBuffer(data: data)) { response in
+            XCTAssertEqual(response.status, .badRequest)
+        }
+    }
+
+    func test_post_responds_with_400_if_not_given_action_in_payload() async throws {
+        
+        var propertiesWithMissingValues = exampleValidUserEventProperties
+        propertiesWithMissingValues.removeValue(forKey: "action")
+        let data = try JSONSerialization.data(withJSONObject: propertiesWithMissingValues)
+        
+        try await testPOST(ByteBuffer(data: data)) { response in
+            XCTAssertEqual(response.status, .badRequest)
+        }
+    }
+
     func test_post_responds_with_422_if_body_is_empty_string() async throws {
 
         try await testPOST(ByteBuffer(string: "")) { response in
