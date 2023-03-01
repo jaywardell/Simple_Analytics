@@ -55,15 +55,6 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
-    private var exampleValidUserEventProperties: [String:Any] {
-        [
-            "id": UUID().uuidString,
-            "userID": UUID().uuidString,
-            "timestamp": Date().timeIntervalSinceReferenceDate.rounded(),
-            "flag": true,
-            "action": UserEvent.Action.start.rawValue
-        ]
-    }
     
     func test_post_responds_with_200_if_given_valid_json() async throws {
                 
@@ -206,6 +197,16 @@ final class UserEventControllerTests: XCTestCase {
     private var exampleUserID: UUID { UUID() }
     private var defaultHeaders: HTTPHeaders { HTTPHeaders(dictionaryLiteral: ("content-type", "application/json")) }
     
+    private var exampleValidUserEventProperties: [String:Any] {
+        [
+            "id": UUID().uuidString,
+            "userID": UUID().uuidString,
+            "timestamp": Date().timeIntervalSinceReferenceDate.rounded(),
+            "flag": true,
+            "action": UserEvent.Action.start.rawValue
+        ]
+    }
+
     private func testPOST(_ byteBuffer: ByteBuffer,
                          headers: HTTPHeaders? = nil,
                          tests: (XCTHTTPResponse) async throws ->(),
