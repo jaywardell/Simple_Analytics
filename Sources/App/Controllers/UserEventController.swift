@@ -20,7 +20,8 @@ extension UserEventController: RouteCollection {
         group.post(use: create)
     }
     
-    func create(req: Request) async throws -> String {
-        ""
+    func create(req: Request) async throws -> UserEvent {        
+        let greeting = try req.content.decode(UserEvent.self)
+        return greeting
     }
 }

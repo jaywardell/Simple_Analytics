@@ -23,10 +23,14 @@ final class UserEventControllerTests: XCTestCase {
     
     func test_post_returns_200() throws {
 
-        try sut.test(.POST, UserEventController.userevents, afterResponse: { res in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.body.string, "")
-        })
+        let expected = UserEvent()
+        let body = try JSONEncoder().encodeAsByteBuffer(expected, allocator: .init())
+        let headers = HTTPHeaders(dictionaryLiteral: ("content-type", "application/json"))
+        try sut.test(.POST, UserEventController.userevents, headers: headers, body: body) { response in
+            XCTAssertEqual(response.status, .ok)
+            let received = try JSONDecoder().decode(UserEvent.self, from: response.body)
+            XCTAssertEqual(received, expected)
+        }
     }
     
     func test_get_with_no_query_returns_404() throws {
