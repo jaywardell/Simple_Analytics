@@ -21,6 +21,7 @@ final class UserEventControllerTests: XCTestCase {
         sut.shutdown()
     }
     
+    // MARK: POST -  add UserEvent
     func test_post_responds_with_200() async throws {
 
         try await testPOST(UserEvent(action: .start, userID: exampleUserID).toByteBuffer()) { response in
@@ -176,27 +177,8 @@ final class UserEventControllerTests: XCTestCase {
     }
 
     
-    func test_get_with_no_body_returns_404() throws {
-        
-        try sut.test(.GET, UserEventController.userevents, afterResponse: { res in
-            XCTAssertEqual(res.status, .notFound)
-        })
-    }
-
-    func test_put_returns_404() throws {
-
-        try sut.test(.PUT, UserEventController.userevents, afterResponse: { res in
-            XCTAssertEqual(res.status, .notFound)
-        })
-    }
-
-    func test_delete_returns_404() throws {
-
-        try sut.test(.DELETE, UserEventController.userevents, afterResponse: { res in
-            XCTAssertEqual(res.status, .notFound)
-        })
-    }
     
+    // MARK: GET list -  list all UserEvents
     func test_get_list_returns_200() throws {
         try sut.test(.GET, UserEventController.listPath) { response in
             XCTAssertEqual(response.status, .ok)
@@ -240,6 +222,30 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
+    // MARK: - Bad Requests
+    
+    func test_get_returns_404() throws {
+        
+        try sut.test(.GET, UserEventController.userevents, afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_put_returns_404() throws {
+
+        try sut.test(.PUT, UserEventController.userevents, afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_delete_returns_404() throws {
+
+        try sut.test(.DELETE, UserEventController.userevents, afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    
     // MARK: - Helpers
 
     private var exampleUserID: UUID { UUID() }
