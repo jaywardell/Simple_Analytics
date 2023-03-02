@@ -19,7 +19,7 @@ struct HeaderCheckingMiddleware: AsyncMiddleware {
 /// a controller that offers one GET route
 /// used for testing HeaderCheckingMiddleware
 struct HeaderCheckingMiddlewareTestsController {
-    static var example: String { #function }
+    static var middleware_example: String { #function }
 }
 
 // MARK: - HeaderCheckingMiddlewareTestsController: RouteCollection
@@ -27,7 +27,7 @@ struct HeaderCheckingMiddlewareTestsController {
 extension HeaderCheckingMiddlewareTestsController: RouteCollection {
     
     func boot(routes: Vapor.RoutesBuilder) throws {
-        let group = routes.grouped(.constant(Self.example))
+        let group = routes.grouped(.constant(Self.middleware_example))
         group.get { _ in 42 }
     }
 }

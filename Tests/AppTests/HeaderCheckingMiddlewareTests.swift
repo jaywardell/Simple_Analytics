@@ -22,7 +22,7 @@ final class HeaderCheckingMiddlewareTests: XCTestCase {
     }
 
     func test_get_responds_with_200() throws {
-        try sut.test(.GET, HeaderCheckingMiddlewareTestsController.example) { response in
+        try sut.test(.GET, HeaderCheckingMiddlewareTestsController.middleware_example) { response in
             XCTAssertEqual(response.status, .ok)
         }
     }
