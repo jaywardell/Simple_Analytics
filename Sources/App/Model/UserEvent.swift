@@ -7,14 +7,14 @@
 
 import Vapor
 
-struct UserEvent: Content, Equatable {
+struct UserEvent: Content, Equatable, Hashable {
     
     let userID: UUID
     
     let flag: Bool
     let timestamp: InternalDate
     
-    enum Action: String, Codable {
+    enum Action: String, Codable, CaseIterable {
         case start, pause, stop
     }
     let action: Action

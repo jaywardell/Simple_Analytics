@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct InternalDate: Codable, Equatable {
+struct InternalDate: Codable, Equatable, Hashable {
     
     let value: Date
     
