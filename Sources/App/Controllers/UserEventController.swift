@@ -16,6 +16,8 @@ import Vapor
 
 struct UserEventController {
     static var userevents: String { #function }
+    static var verbose: String { #function }
+    static var verboseTrue: String { "true" }
 }
 
 // MARK: - UserEventController: RouteCollection
@@ -23,7 +25,9 @@ struct UserEventController {
 extension UserEventController: RouteCollection {
     
     func boot(routes: Vapor.RoutesBuilder) throws {
-        let group = routes.grouped(.constant(Self.userevents))
+        let group = routes
+            .grouped(.constant(Self.userevents))
+            .grouped(HeaderCheckingMiddleware(key: Self.verbose, value: Self.verboseTrue))
         group.post(use: create)
     }
     
