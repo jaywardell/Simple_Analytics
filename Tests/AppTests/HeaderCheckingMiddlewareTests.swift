@@ -37,7 +37,7 @@ final class HeaderCheckingMiddlewareTests: XCTestCase {
     func test_get_responds_with_original_value_if_header_contains_required_key_and_value() throws {
         try sut.test(.GET, HeaderCheckingMiddlewareTestsController.middleware_example, headers: exampleHeaders) { response in
             let body = response.body.string
-            XCTAssertEqual(body, "42")
+            XCTAssertEqual(body, String(HeaderCheckingMiddlewareTestsController.standardResult))
         }
     }
 
