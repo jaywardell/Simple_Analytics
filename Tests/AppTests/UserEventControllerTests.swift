@@ -197,6 +197,49 @@ final class UserEventControllerTests: XCTestCase {
         })
     }
     
+    func test_get_list_returns_200() throws {
+        try sut.test(.GET, UserEventController.listPath) { response in
+            XCTAssertEqual(response.status, .ok)
+        }
+    }
+    
+    func test_get_list_returns_empty_array_if_no_userevents_have_been_created() throws {
+        try sut.test(.GET, UserEventController.listPath) { response in
+            let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
+            XCTAssertEqual(received, [])
+        }
+    }
+
+    func test_get_list_returns_userevent_that_has_been_added() throws {
+                
+        let sent = UserEvent(action: .start, userID: exampleUserID)
+        let expected = [sent]
+
+        _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: sent.toByteBuffer())
+        
+        try sut.test(.GET, UserEventController.listPath) { response in
+            let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
+            XCTAssertEqual(received, expected)
+        }
+    }
+
+    func test_get_list_returns_all_userevent_that_have_been_added() throws {
+                
+        let sent = (0..<Int.random(in: 3..<20)).map { _ in
+            UserEvent(action: .allCases.randomElement()!, userID: exampleUserID, flag: .random())
+        }
+
+        try sent.forEach {
+            _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: $0.toByteBuffer())
+        }
+        
+        try sut.test(.GET, UserEventController.listPath) { response in
+            let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
+            // use Sets since order doesn't matter
+            XCTAssertEqual(Set(received), Set(sent))
+        }
+    }
+
     // MARK: - Helpers
 
     private var exampleUserID: UUID { UUID() }
