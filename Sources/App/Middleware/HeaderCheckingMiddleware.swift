@@ -7,18 +7,28 @@
 
 import Vapor
 
+/// A Middleware that checks the header for a given key-value pair.
+/// If the key-value pair exists in the request header, then the original response is sent back.
+/// If the key-value pair doesn't exist, then a default body is sent back instead (an empty body is the default)
 struct HeaderCheckingMiddleware: AsyncMiddleware {
     
     let key: String
     let value: String
+    let defaultBody: Response.Body
         
+    init(key: String, value: String, defaultBody: Response.Body = .empty) {
+        self.key = key
+        self.value = value
+        self.defaultBody = defaultBody
+    }
+    
     func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {
         let response = try await next.respond(to: request)
         if let value = request.headers[key].first,
            value == self.value {
             return response
         }
-        return Response(status: .ok, version: response.version, headersNoUpdate: response.headers, body: .empty)
+        return Response(status: .ok, version: response.version, headersNoUpdate: response.headers, body: defaultBody)
     }
 }
 
