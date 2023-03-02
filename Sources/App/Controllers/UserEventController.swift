@@ -23,9 +23,11 @@ extension UserEventController: RouteCollection {
             .grouped(HeaderCheckingMiddleware(key: Self.verbose, value: Self.verboseTrue))
         group.post(use: create)
     }
-    
-    func create(req: Request) async throws -> UserEvent {        
+  
+    func create(req: Request) async throws -> UserEvent {
         let event = try req.content.decode(UserEvent.self)
-        return event
+        let record = UserEventRecord(event)
+        try await record.create(on: req.db)
+        return record.userEvent
     }
 }

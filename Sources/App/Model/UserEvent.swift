@@ -19,11 +19,15 @@ struct UserEvent: Content, Equatable {
     }
     let action: Action
         
-    init(action: Action, userID: UUID, flag: Bool = false) {
+    init(date: Date, action: Action, userID: UUID, flag: Bool = false) {
         self.userID = userID
         
-        self.timestamp = InternalDate(Date())
+        self.timestamp = InternalDate(date)
         self.flag = flag
         self.action = action
+    }
+
+    init(action: Action, userID: UUID, flag: Bool = false) {
+        self.init(date: Date(), action: action, userID: userID, flag: flag)
     }
 }
