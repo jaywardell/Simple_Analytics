@@ -29,8 +29,7 @@ final class HeaderCheckingMiddlewareTests: XCTestCase {
     
     func test_get_responds_with_empty_string_by_default() throws {
         try sut.test(.GET, HeaderCheckingMiddlewareTestsController.middleware_example) { response in
-            let body = response.body.string
-            XCTAssertEqual(body, "")
+            XCTAssert(response.body.readableBytesView.isEmpty)
         }
     }
     
