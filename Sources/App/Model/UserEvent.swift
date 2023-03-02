@@ -8,7 +8,6 @@
 import Vapor
 
 struct UserEvent: Content, Equatable {
-    let id: UUID
     
     let userID: UUID
     
@@ -19,10 +18,8 @@ struct UserEvent: Content, Equatable {
         case start, pause, stop
     }
     let action: Action
-    
-    init(action: Action, userID: UUID, flag: Bool = false) {
-        self.id = UUID()
         
+    init(action: Action, userID: UUID, flag: Bool = false) {
         self.userID = userID
         
         self.timestamp = InternalDate(Date())

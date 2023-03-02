@@ -113,17 +113,6 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
-    func test_post_responds_with_400_if_not_given_id_in_payload() async throws {
-        
-        var propertiesWithMissingValues = exampleValidUserEventProperties
-        propertiesWithMissingValues.removeValue(forKey: "id")
-        let data = try JSONSerialization.data(withJSONObject: propertiesWithMissingValues)
-        
-        try await testPOST(ByteBuffer(data: data)) { response in
-            XCTAssertEqual(response.status, .badRequest)
-        }
-    }
-
     func test_post_responds_with_400_if_not_given_flag_in_payload() async throws {
         
         var propertiesWithMissingValues = exampleValidUserEventProperties
@@ -219,7 +208,6 @@ final class UserEventControllerTests: XCTestCase {
 
     private var exampleValidUserEventProperties: [String:Any] {
         [
-            "id": UUID().uuidString,
             "userID": UUID().uuidString,
             "timestamp": Date().timeIntervalSinceReferenceDate.rounded(),
             "flag": true,
