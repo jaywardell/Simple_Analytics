@@ -5,13 +5,6 @@
 //  Created by Joseph Wardell on 2/28/23.
 //
 
-//
-//  MiddlewareTestsController.swift
-//
-//
-//  Created by Joseph Wardell on 3/1/23.
-//
-
 import Vapor
 
 struct UserEventController {
