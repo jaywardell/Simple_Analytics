@@ -10,7 +10,7 @@ import Vapor
 struct HeaderCheckingMiddleware: AsyncMiddleware {
     func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {
         let response = try await next.respond(to: request)
-        return response
+        return Response(status: .ok, version: response.version, headersNoUpdate: response.headers, body: "")
     }
 }
 
@@ -27,7 +27,9 @@ struct HeaderCheckingMiddlewareTestsController {
 extension HeaderCheckingMiddlewareTestsController: RouteCollection {
     
     func boot(routes: Vapor.RoutesBuilder) throws {
-        let group = routes.grouped(.constant(Self.middleware_example))
+        let group = routes
+            .grouped(.constant(Self.middleware_example))
+            .grouped(HeaderCheckingMiddleware())
         group.get { _ in 42 }
     }
 }
