@@ -180,13 +180,13 @@ final class UserEventControllerTests: XCTestCase {
     
     // MARK: GET list -  list all UserEvents
     func test_get_list_returns_200() throws {
-        try sut.test(.GET, UserEventController.listPath) { response in
+        try sut.test(.GET, listPath()) { response in
             XCTAssertEqual(response.status, .ok)
         }
     }
     
     func test_get_list_returns_empty_array_if_no_userevents_have_been_created() throws {
-        try sut.test(.GET, UserEventController.listPath) { response in
+        try sut.test(.GET, listPath()) { response in
             let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
             XCTAssertEqual(received, [])
         }
@@ -199,7 +199,7 @@ final class UserEventControllerTests: XCTestCase {
 
         _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: sent.toByteBuffer())
         
-        try sut.test(.GET, UserEventController.listPath) { response in
+        try sut.test(.GET, listPath()) { response in
             let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
             XCTAssertEqual(received, expected)
         }
@@ -215,7 +215,7 @@ final class UserEventControllerTests: XCTestCase {
             _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: $0.toByteBuffer())
         }
         
-        try sut.test(.GET, UserEventController.listPath) { response in
+        try sut.test(.GET, listPath()) { response in
             let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
             // use Sets since order doesn't matter
             XCTAssertEqual(Set(received), Set(sent))
@@ -241,20 +241,15 @@ final class UserEventControllerTests: XCTestCase {
             .forEach {
                 _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: $0.toByteBuffer())
             }
-        
-        let path = UserEventController.listPath +
-        "?" +
-        "startDate=\(startOfDay.timeIntervalSinceReferenceDate)" +
-        "&" +
-        "endDate=\(endOfDay.timeIntervalSinceReferenceDate)"
-        
-        try sut.test(.GET, path) { response in
+                  
+        try sut.test(.GET, listPath(startDate: startOfDay, endDate: endOfDay)) { response in
             let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
             // use Sets since order doesn't matter
             XCTAssertEqual(received, [eventNow])
         }
     }
 
+    
     // TODO: add a test where endDate is earlier than startDate, just to make sure that nothing devastating happens
     
     // MARK: - Bad Requests
@@ -299,6 +294,24 @@ final class UserEventControllerTests: XCTestCase {
         ]
     }
 
+    
+    func pathString(_ path: String, adding queries: [(String, String)]) -> String {
+        guard queries.count > 0 else { return path }
+        return path + "?" + queries.map { "\($0)=\($1)" }.joined(separator: "&")
+    }
+
+    func listPath(startDate: Date? = nil, endDate: Date? = nil) -> String {
+        var queries = [(String, String)]()
+        if let startDate {
+            queries.append(("startDate", String(startDate.timeIntervalSinceReferenceDate)))
+        }
+        if let endDate {
+            queries.append(("endDate", String(endDate.timeIntervalSinceReferenceDate)))
+        }
+
+        return pathString(UserEventController.listPath, adding: queries)
+    }
+    
     private func testPOST(_ byteBuffer: ByteBuffer,
                          headers: HTTPHeaders? = nil,
                          tests: (XCTHTTPResponse) async throws ->(),
