@@ -50,14 +50,12 @@ extension UserEventController: RouteCollection {
     
     func list(request: Request) async throws -> [UserEvent] {
         
-        let query = UserEventRecord.query(on: request.db)
+        var query = UserEventRecord.query(on: request.db)
         
         if let dateRange = try? request.query.decode(DateRangeQuery.self) {
-            return try await query
+            query = query
                 .filter(\.$timestamp  >= dateRange.startDate.value.timeIntervalSinceReferenceDate)
                 .filter(\.$timestamp  <= dateRange.endDate.value.timeIntervalSinceReferenceDate)
-                .all()
-                .map(\.userEvent)
         }
         else if request.url.query?.isEmpty == false {
             throw Abort(.badRequest)
