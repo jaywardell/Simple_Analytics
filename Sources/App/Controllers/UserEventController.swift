@@ -49,16 +49,18 @@ extension UserEventController: RouteCollection {
     }
     
     func list(request: Request) async throws -> [UserEvent] {
-        
         var query = UserEventRecord.query(on: request.db)
         
         if let dateRange = try? request.query.decode(DateRangeQuery.self) {
             query = dateRange.filter(query)
         }
+        else if let actionQuery = try? request.query.decode(ActionQuery.self) {
+            query = actionQuery.filter(query)
+        }
         else if request.url.query?.isEmpty == false {
             throw Abort(.badRequest)
         }
-        
+                
         return try await query
             .all()
             .map(\.userEvent)
@@ -75,5 +77,13 @@ struct DateRangeQuery: Content {
         query
             .filter(\.$timestamp  >= startDate.value.timeIntervalSinceReferenceDate)
             .filter(\.$timestamp  <= endDate.value.timeIntervalSinceReferenceDate)
+    }
+}
+
+struct ActionQuery: Content {
+    let action: UserEvent.Action
+    
+    func filter(_ query: QueryBuilder<UserEventRecord>) -> QueryBuilder<UserEventRecord> {
+        query.filter(\.$action == action)
     }
 }

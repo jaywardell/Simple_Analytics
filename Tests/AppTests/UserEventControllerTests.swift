@@ -278,6 +278,21 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
+    func test_get_list_returns_all_userevents_that_match_action_requested() throws {
+                
+        let sent = (0..<Int.random(in: 3..<20)).map { _ in
+            UserEvent.random(at: Date().addingTimeInterval(.random(in: 60...3600)))
+        }
+
+        let expected = sent.filter { $0.action == .pause }
+        
+        try post(sent)
+        
+        try sut.test(.GET, listPath(action: .pause)) { response in
+            let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
+            XCTAssertEqual(Set(received), Set(expected))
+        }
+    }
 
     // MARK: - Bad Requests
     
