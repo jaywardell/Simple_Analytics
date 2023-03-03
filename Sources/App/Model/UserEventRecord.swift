@@ -44,7 +44,7 @@ final class UserEventRecord: Model {
         
         // take the timestamp from the userEvent,
         // don't use a Fluent @Timestamp
-        // because we want the time that the messge was sent
+        // because we want the time that the event happened
         // not the time that the record was created
         self.timestamp = userEvent.timestamp.value.timeIntervalSinceReferenceDate
         
