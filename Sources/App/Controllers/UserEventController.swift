@@ -6,7 +6,6 @@
 //
 
 import Vapor
-import FluentKit
 
 extension PathComponent {
     static var list: PathComponent { PathComponent(stringLiteral: UserEventController.list) }
@@ -84,40 +83,6 @@ extension UserEventController: RouteCollection {
     }
 }
 
-struct DateRangeQuery: Content {
-    var startDate: InternalDate
-    var endDate: InternalDate
-    var start: Double { startDate.value.timeIntervalSinceReferenceDate }
-    var end: Double { endDate.value.timeIntervalSinceReferenceDate }
-    
-    func filter(_ query: QueryBuilder<UserEventRecord>) -> QueryBuilder<UserEventRecord> {
-        query
-            .filter(\.$timestamp  >= startDate.value.timeIntervalSinceReferenceDate)
-            .filter(\.$timestamp  <= endDate.value.timeIntervalSinceReferenceDate)
-    }
-}
 
-struct ActionQuery: Content {
-    let action: UserEvent.Action
-    
-    func filter(_ query: QueryBuilder<UserEventRecord>) -> QueryBuilder<UserEventRecord> {
-        query.filter(\.$action == action)
-    }
-}
 
-struct UserIDQuery: Content {
-    let userID: UUID
-    
-    func filter(_ query: QueryBuilder<UserEventRecord>) -> QueryBuilder<UserEventRecord> {
-        query.filter(\.$userID == userID)
-    }
-}
 
-struct FlagQuery: Content {
-    let flag: Bool?
-        
-    func filter(_ query: QueryBuilder<UserEventRecord>) -> QueryBuilder<UserEventRecord>? {
-        guard let flag = flag else { return nil }
-        return query.filter(\.$flag == flag)
-    }
-}
