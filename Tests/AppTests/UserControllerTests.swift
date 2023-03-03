@@ -29,14 +29,10 @@ final class UserControllerTests: XCTestCase {
     }
     
     func test_get_list_returns_all_users_that_have_used_app() throws {
-        
-        let user1 = UUID()
-        let user2 = UUID()
-        let user3 = UUID()
-        
-        let users = [user1, user2, user3]
-        let expected = users.map(\.uuidString)
-        let sent = users.map { UserEvent.random(for: $0, at: Date()) }
+                
+        let userIDs = [UUID(), UUID(), UUID()]
+        let expected = userIDs.map(\.uuidString)
+        let sent = userIDs.map { UserEvent.random(for: $0, at: Date()) }
         try post(sent)
         
         try sut.test(.GET, UserController.users) { response in
