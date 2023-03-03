@@ -254,6 +254,8 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
+    // TODO: add a test where endDate is earlier than startDate, just to make sure that nothing devastating happens
+    
     // MARK: - Bad Requests
     
     func test_get_returns_404() throws {
