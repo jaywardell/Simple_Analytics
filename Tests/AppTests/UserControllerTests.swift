@@ -58,6 +58,20 @@ final class UserControllerTests: XCTestCase {
         }
     }
 
+    func test_get_count_returns_count_of_users_that_have_used_app() throws {
+        
+        let users = (0..<Int.random(in: 3..<20)).map { _ in UUID() }
+
+        // send twice so that each user has 2 events in the database
+        try post(users.map { UserEvent.random(for: $0, at: Date()) })
+        try post(users.map { UserEvent.random(for: $0, at: Date()) })
+
+        try sut.test(.GET, UserController.countPath) { response in
+            let received = try JSONDecoder().decode(Int.self, from: response.body)
+            XCTAssertEqual(received, users.count)
+        }
+    }
+
     // MARK: - Helpers
     
     private var defaultHeaders: HTTPHeaders { HTTPHeaders(dictionaryLiteral: ("content-type", "application/json")) }
