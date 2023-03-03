@@ -220,6 +220,21 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
+    func test_get_list_returns_400_if_query_contains_no_keys() throws {
+                
+        let path = UserEventController.listPath + "?"
+        try sut.test(.GET, listPath(endDate: Date())) { response in
+            XCTAssertEqual(response.status, .badRequest)
+        }
+    }
+
+    func test_get_list_returns_400_if_query_contains_unexpected_keys() throws {
+                
+        let path = pathString(UserEventController.listPath, adding: [("foo", "bar")])
+        try sut.test(.GET, listPath(endDate: Date())) { response in
+            XCTAssertEqual(response.status, .badRequest)
+        }
+    }
     
     func test_get_list_returns_all_userevent_that_fit_in_date_range() throws {
                 
