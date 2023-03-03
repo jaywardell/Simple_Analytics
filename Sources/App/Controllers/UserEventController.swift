@@ -53,9 +53,7 @@ extension UserEventController: RouteCollection {
         var query = UserEventRecord.query(on: request.db)
         
         if let dateRange = try? request.query.decode(DateRangeQuery.self) {
-            query = query
-                .filter(\.$timestamp  >= dateRange.startDate.value.timeIntervalSinceReferenceDate)
-                .filter(\.$timestamp  <= dateRange.endDate.value.timeIntervalSinceReferenceDate)
+            query = dateRange.filter(query)
         }
         else if request.url.query?.isEmpty == false {
             throw Abort(.badRequest)
@@ -72,4 +70,10 @@ struct DateRangeQuery: Content {
     var endDate: InternalDate
     var start: Double { startDate.value.timeIntervalSinceReferenceDate }
     var end: Double { endDate.value.timeIntervalSinceReferenceDate }
+    
+    func filter(_ query: QueryBuilder<UserEventRecord>) -> QueryBuilder<UserEventRecord> {
+        query
+            .filter(\.$timestamp  >= startDate.value.timeIntervalSinceReferenceDate)
+            .filter(\.$timestamp  <= endDate.value.timeIntervalSinceReferenceDate)
+    }
 }

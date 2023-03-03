@@ -228,7 +228,7 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
     
-    func test_get_list_returns_all_userevent_that_fit_in_date_range() throws {
+    func test_get_list_returns_all_userevents_that_fit_in_date_range() throws {
                 
         let now = Date()
             
