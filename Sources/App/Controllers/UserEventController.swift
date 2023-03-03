@@ -51,13 +51,18 @@ extension UserEventController: RouteCollection {
     func list(request: Request) async throws -> [UserEvent] {
         var query = UserEventRecord.query(on: request.db)
         
+        var queryWasFound = false
+        
         if let dateRange = try? request.query.decode(DateRangeQuery.self) {
             query = dateRange.filter(query)
+            queryWasFound = true
         }
-        else if let actionQuery = try? request.query.decode(ActionQuery.self) {
+        if let actionQuery = try? request.query.decode(ActionQuery.self) {
             query = actionQuery.filter(query)
+            queryWasFound = true
         }
-        else if request.url.query?.isEmpty == false {
+        
+        if !queryWasFound && request.url.query?.isEmpty == false {
             throw Abort(.badRequest)
         }
                 

@@ -294,6 +294,31 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
+    func test_get_list_returns_all_userevents_that_match_action_requested_and_fit_within_date_range() throws {
+                
+        let now = Date()
+        let dateRange: ClosedRange<TimeInterval> = -.oneDay ... .oneDay
+        
+        let sent = (0..<Int.random(in: 3..<20)).map { _ in
+            UserEvent.random(at: now.addingTimeInterval(.random(in: dateRange)))
+        }
+
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
+        let expected = sent.filter {
+            $0.action == .pause &&
+            $0.timestamp.value >= startOfDay &&
+            $0.timestamp.value <= endOfDay
+        }
+        
+        try post(sent)
+        
+        try sut.test(.GET, listPath(startDate: startOfDay, endDate: endOfDay, action: .pause)) { response in
+            let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
+            XCTAssertEqual(Set(received), Set(expected))
+        }
+    }
+
     // MARK: - Bad Requests
     
     func test_get_returns_404() throws {
