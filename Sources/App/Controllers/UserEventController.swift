@@ -25,6 +25,7 @@ struct UserEventController {
     static var endDate: String { #function }
     static var action: String { #function }
     static var flag: String { #function }
+    static var userID: String { #function }
 }
 
 // MARK: - UserEventController: RouteCollection
@@ -61,7 +62,11 @@ extension UserEventController: RouteCollection {
             query = actionQuery.filter(query)
             queryWasFound = true
         }
-        
+        if let userIDQuery = try? request.query.decode(UserIDQuery.self) {
+            query = userIDQuery.filter(query)
+            queryWasFound = true
+        }
+
         if !queryWasFound && request.url.query?.isEmpty == false {
             throw Abort(.badRequest)
         }
@@ -90,5 +95,13 @@ struct ActionQuery: Content {
     
     func filter(_ query: QueryBuilder<UserEventRecord>) -> QueryBuilder<UserEventRecord> {
         query.filter(\.$action == action)
+    }
+}
+
+struct UserIDQuery: Content {
+    let userID: UUID
+    
+    func filter(_ query: QueryBuilder<UserEventRecord>) -> QueryBuilder<UserEventRecord> {
+        query.filter(\.$userID == userID)
     }
 }

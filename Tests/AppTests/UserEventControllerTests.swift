@@ -319,6 +319,26 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
+    func test_get_list_returns_all_userevents_that_match_userID_requested() throws {
+                
+        let sent = (0..<Int.random(in: 3..<20)).map { _ in
+            UserEvent.random(at: Date().addingTimeInterval(.random(in: 60...3600)))
+        }
+
+        let someEvent = sent.randomElement()!
+        let filteredUserID = someEvent.userID
+        
+        let expected = sent.filter { $0.userID == filteredUserID }
+        
+        try post(sent)
+        
+        try sut.test(.GET, listPath(userID: filteredUserID)) { response in
+            let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
+            XCTAssertEqual(Set(received), Set(expected))
+            XCTAssert(received.count > 0)
+        }
+    }
+
     // MARK: - Bad Requests
     
     func test_get_returns_404() throws {
@@ -369,6 +389,7 @@ final class UserEventControllerTests: XCTestCase {
 
     func listPath(startDate: Date? = nil,
                   endDate: Date? = nil,
+                  userID: UUID? = nil,
                   action: UserEvent.Action? = nil,
                   flag: Bool? = nil) -> String {
         var queries = [(String, String)]()
@@ -377,6 +398,9 @@ final class UserEventControllerTests: XCTestCase {
         }
         if let endDate {
             queries.append((UserEventController.endDate, String(endDate.timeIntervalSinceReferenceDate)))
+        }
+        if let userID {
+            queries.append((UserEventController.userID, userID.uuidString))
         }
         if let action {
             queries.append((UserEventController.action, action.rawValue))
