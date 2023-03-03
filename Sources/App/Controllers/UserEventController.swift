@@ -54,6 +54,7 @@ extension UserEventController: RouteCollection {
         
         var queryWasFound = false
         
+        // TODO: this looks like a pattern that could be simplified somehow
         if let dateRange = try? request.query.decode(DateRangeQuery.self) {
             query = dateRange.filter(query)
             queryWasFound = true
