@@ -241,7 +241,22 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
-    
+    func test_get_list_returns_empty_array_if_endDate_precedes_startDate() throws {
+                
+        let now = Date()
+            
+        let eventToday = UserEvent.random(at: now)
+        
+        try post(eventToday)
+        
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
+        try sut.test(.GET, listPath(startDate: endOfDay, endDate: startOfDay)) { response in
+            let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
+            XCTAssertEqual(received, [])
+        }
+    }
+
     // TODO: add a test where endDate is earlier than startDate, just to make sure that nothing devastating happens
     
     // MARK: - Bad Requests
