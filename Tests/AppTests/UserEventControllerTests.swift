@@ -197,7 +197,7 @@ final class UserEventControllerTests: XCTestCase {
         let sent = UserEvent(action: .start, userID: exampleUserID)
         let expected = [sent]
 
-        _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: sent.toByteBuffer())
+        try post(sent)
         
         try sut.test(.GET, listPath()) { response in
             let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
@@ -211,9 +211,7 @@ final class UserEventControllerTests: XCTestCase {
             UserEvent.random(at: Date().addingTimeInterval(.random(in: 60...3600)))
         }
 
-        try sent.forEach {
-            _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: $0.toByteBuffer())
-        }
+        try post(sent)
         
         try sut.test(.GET, listPath()) { response in
             let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
@@ -227,25 +225,20 @@ final class UserEventControllerTests: XCTestCase {
                 
         let oneDay: TimeInterval = 24*3600
         let now = Date()
+            
+        let eventToday = UserEvent.random(at: now)
+        
+        try post([
+            UserEvent.random(at: now.addingTimeInterval(-oneDay)),
+            eventToday,
+            UserEvent.random(at: now.addingTimeInterval(oneDay))
+        ])
+        
         let startOfDay = Calendar.current.startOfDay(for: now)
         let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(oneDay))
-        
-        let beforeToday = now.addingTimeInterval(-oneDay)
-        let afterToday = now.addingTimeInterval(oneDay)
-        
-        let eventBeforeToday = UserEvent.random(at: beforeToday)
-        let eventNow = UserEvent.random(at: now)
-        let eventAfterToday = UserEvent.random(at: afterToday)
-
-        try [ eventBeforeToday, eventNow, eventAfterToday]
-            .forEach {
-                _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: $0.toByteBuffer())
-            }
-                  
         try sut.test(.GET, listPath(startDate: startOfDay, endDate: endOfDay)) { response in
             let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
-            // use Sets since order doesn't matter
-            XCTAssertEqual(received, [eventNow])
+            XCTAssertEqual(received, [eventToday])
         }
     }
 
@@ -322,6 +315,16 @@ final class UserEventControllerTests: XCTestCase {
         return pathString(UserEventController.listPath, adding: queries.shuffled())
     }
     
+    func post(_ userEvents: [UserEvent]) throws {
+        try userEvents.forEach {
+            _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: $0.toByteBuffer())
+        }
+    }
+
+    func post(_ userEvent: UserEvent) throws {
+        try post([userEvent])
+    }
+
     private func testPOST(_ byteBuffer: ByteBuffer,
                          headers: HTTPHeaders? = nil,
                          tests: (XCTHTTPResponse) async throws ->(),
