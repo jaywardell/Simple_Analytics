@@ -208,7 +208,7 @@ final class UserEventControllerTests: XCTestCase {
     func test_get_list_returns_all_userevent_that_have_been_added() throws {
                 
         let sent = (0..<Int.random(in: 3..<20)).map { _ in
-            UserEvent(action: .allCases.randomElement()!, userID: exampleUserID, flag: .random())
+            UserEvent(date: Date().addingTimeInterval(.random(in: 60...3600)), action: .allCases.randomElement()!, userID: exampleUserID, flag: .random())
         }
 
         try sent.forEach {
