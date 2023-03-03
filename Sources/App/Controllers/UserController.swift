@@ -25,6 +25,9 @@ extension UserController: RouteCollection {
     }
     
     private func list(request: Request) async throws -> [String] {
-        []
+        try await UserEventRecord.query(on: request.db)
+            .unique()
+            .all(\.$userID)
+            .map(String.init)
     }
 }
