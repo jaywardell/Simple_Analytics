@@ -222,6 +222,38 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
+    func test_get_list_returns_all_userevent_that_fit_in_date_range() throws {
+                
+        let oneDay: TimeInterval = 24*3600
+        let now = Date()
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(oneDay))
+        
+        let beforeToday = now.addingTimeInterval(-oneDay)
+        let afterToday = now.addingTimeInterval(oneDay)
+        
+        let eventBeforeToday = UserEvent(date: beforeToday, action: .allCases.randomElement()!, userID: exampleUserID, flag: .random())
+        let eventNow = UserEvent(date: now, action: .allCases.randomElement()!, userID: exampleUserID, flag: .random())
+        let eventAfterToday = UserEvent(date: afterToday, action: .allCases.randomElement()!, userID: exampleUserID, flag: .random())
+
+        try [ eventBeforeToday, eventNow, eventAfterToday]
+            .forEach {
+                _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: $0.toByteBuffer())
+            }
+        
+        let path = UserEventController.listPath +
+        "?" +
+        "startDate=\(startOfDay.timeIntervalSinceReferenceDate)" +
+        "&" +
+        "endDate=\(endOfDay.timeIntervalSinceReferenceDate)"
+        
+        try sut.test(.GET, path) { response in
+            let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
+            // use Sets since order doesn't matter
+            XCTAssertEqual(received, [eventNow])
+        }
+    }
+
     // MARK: - Bad Requests
     
     func test_get_returns_404() throws {
