@@ -300,7 +300,10 @@ final class UserEventControllerTests: XCTestCase {
         return path + "?" + queries.map { "\($0)=\($1)" }.joined(separator: "&")
     }
 
-    func listPath(startDate: Date? = nil, endDate: Date? = nil) -> String {
+    func listPath(startDate: Date? = nil,
+                  endDate: Date? = nil,
+                  action: UserEvent.Action? = nil,
+                  flag: Bool? = nil) -> String {
         var queries = [(String, String)]()
         if let startDate {
             queries.append(("startDate", String(startDate.timeIntervalSinceReferenceDate)))
@@ -308,8 +311,15 @@ final class UserEventControllerTests: XCTestCase {
         if let endDate {
             queries.append(("endDate", String(endDate.timeIntervalSinceReferenceDate)))
         }
-
-        return pathString(UserEventController.listPath, adding: queries)
+        if let action {
+            queries.append(("action", action.rawValue))
+        }
+        if let flag {
+            queries.append(("flag", String(flag)))
+        }
+        
+        // shuffle the queries to ensure that the server is robust about how it handles queries in any order
+        return pathString(UserEventController.listPath, adding: queries.shuffled())
     }
     
     private func testPOST(_ byteBuffer: ByteBuffer,
