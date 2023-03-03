@@ -59,6 +59,9 @@ extension UserEventController: RouteCollection {
                 .all()
                 .map(\.userEvent)
         }
+        else if request.url.query?.isEmpty == false {
+            throw Abort(.badRequest)
+        }
         
         return try await query
             .all()

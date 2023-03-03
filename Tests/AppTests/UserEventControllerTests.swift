@@ -257,6 +257,21 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
     
+    func test_get_list_returns_400_if_given_startDate_but_not_given_endDate() throws {
+                
+        try sut.test(.GET, listPath(startDate: Date())) { response in
+            XCTAssertEqual(response.status, .badRequest)
+        }
+    }
+
+    func test_get_list_returns_400_if_given_endDate_but_not_given_startDate() throws {
+                
+        try sut.test(.GET, listPath(endDate: Date())) { response in
+            XCTAssertEqual(response.status, .badRequest)
+        }
+    }
+
+
     // MARK: - Bad Requests
     
     func test_get_returns_404() throws {
