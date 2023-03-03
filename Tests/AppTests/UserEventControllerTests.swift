@@ -223,19 +223,18 @@ final class UserEventControllerTests: XCTestCase {
     
     func test_get_list_returns_all_userevent_that_fit_in_date_range() throws {
                 
-        let oneDay: TimeInterval = 24*3600
         let now = Date()
             
         let eventToday = UserEvent.random(at: now)
         
         try post([
-            UserEvent.random(at: now.addingTimeInterval(-oneDay)),
+            UserEvent.random(at: now.addingTimeInterval(-.oneDay)),
             eventToday,
-            UserEvent.random(at: now.addingTimeInterval(oneDay))
+            UserEvent.random(at: now.addingTimeInterval(.oneDay))
         ])
         
         let startOfDay = Calendar.current.startOfDay(for: now)
-        let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(oneDay))
+        let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
         try sut.test(.GET, listPath(startDate: startOfDay, endDate: endOfDay)) { response in
             let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
             XCTAssertEqual(received, [eventToday])
@@ -344,4 +343,8 @@ fileprivate extension UserEvent {
     static func random(at date: Date) -> UserEvent {
         UserEvent(date: date, action: .allCases.randomElement()!, userID: .generateRandom(), flag: .random())
     }
+}
+
+fileprivate extension TimeInterval {
+    static var oneDay: TimeInterval { 24*3600 }
 }
