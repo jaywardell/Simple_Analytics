@@ -16,8 +16,15 @@ struct UserEventController {
     static var userevents: String { #function }
     static var list: String { #function }
     static var listPath: String { [userevents, list].joined(separator: "/") }
+    
+    // query keys
     static var verbose: String { #function }
-    static var verboseTrue: String { "true" }
+    static var verboseTrue: String { String(true) }
+
+    static var startDate: String { #function }
+    static var endDate: String { #function }
+    static var action: String { #function }
+    static var flag: String { #function }
 }
 
 // MARK: - UserEventController: RouteCollection

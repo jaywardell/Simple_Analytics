@@ -298,16 +298,16 @@ final class UserEventControllerTests: XCTestCase {
                   flag: Bool? = nil) -> String {
         var queries = [(String, String)]()
         if let startDate {
-            queries.append(("startDate", String(startDate.timeIntervalSinceReferenceDate)))
+            queries.append((UserEventController.startDate, String(startDate.timeIntervalSinceReferenceDate)))
         }
         if let endDate {
-            queries.append(("endDate", String(endDate.timeIntervalSinceReferenceDate)))
+            queries.append((UserEventController.endDate, String(endDate.timeIntervalSinceReferenceDate)))
         }
         if let action {
-            queries.append(("action", action.rawValue))
+            queries.append((UserEventController.action, action.rawValue))
         }
         if let flag {
-            queries.append(("flag", String(flag)))
+            queries.append((UserEventController.flag, String(flag)))
         }
         
         // shuffle the queries to ensure that the server is robust about how it handles queries in any order
