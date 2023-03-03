@@ -208,7 +208,7 @@ final class UserEventControllerTests: XCTestCase {
     func test_get_list_returns_all_userevent_that_have_been_added() throws {
                 
         let sent = (0..<Int.random(in: 3..<20)).map { _ in
-            UserEvent(date: Date().addingTimeInterval(.random(in: 60...3600)), action: .allCases.randomElement()!, userID: exampleUserID, flag: .random())
+            UserEvent.random(at: Date().addingTimeInterval(.random(in: 60...3600)))
         }
 
         try sent.forEach {
@@ -222,6 +222,7 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
+    
     func test_get_list_returns_all_userevent_that_fit_in_date_range() throws {
                 
         let oneDay: TimeInterval = 24*3600
@@ -232,9 +233,9 @@ final class UserEventControllerTests: XCTestCase {
         let beforeToday = now.addingTimeInterval(-oneDay)
         let afterToday = now.addingTimeInterval(oneDay)
         
-        let eventBeforeToday = UserEvent(date: beforeToday, action: .allCases.randomElement()!, userID: exampleUserID, flag: .random())
-        let eventNow = UserEvent(date: now, action: .allCases.randomElement()!, userID: exampleUserID, flag: .random())
-        let eventAfterToday = UserEvent(date: afterToday, action: .allCases.randomElement()!, userID: exampleUserID, flag: .random())
+        let eventBeforeToday = UserEvent.random(at: beforeToday)
+        let eventNow = UserEvent.random(at: now)
+        let eventAfterToday = UserEvent.random(at: afterToday)
 
         try [ eventBeforeToday, eventNow, eventAfterToday]
             .forEach {
@@ -311,5 +312,10 @@ final class UserEventControllerTests: XCTestCase {
 fileprivate extension UserEvent {
     func toByteBuffer() -> ByteBuffer {
         try! JSONEncoder().encodeAsByteBuffer(self, allocator: .init())
+    }
+
+    /// returns a UserEvent with all random properties except for a date at the date passed in.
+    static func random(at date: Date) -> UserEvent {
+        UserEvent(date: date, action: .allCases.randomElement()!, userID: .generateRandom(), flag: .random())
     }
 }
