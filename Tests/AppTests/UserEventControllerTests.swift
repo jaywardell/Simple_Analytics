@@ -256,8 +256,6 @@ final class UserEventControllerTests: XCTestCase {
             XCTAssertEqual(received, [])
         }
     }
-
-    // TODO: add a test where endDate is earlier than startDate, just to make sure that nothing devastating happens
     
     // MARK: - Bad Requests
     
