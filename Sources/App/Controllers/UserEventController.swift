@@ -66,6 +66,12 @@ extension UserEventController: RouteCollection {
             query = userIDQuery.filter(query)
             queryWasFound = true
         }
+        
+        if let flagQuery = try? request.query.decode(FlagQuery.self),
+           let q = flagQuery.filter(query) {
+            query = q
+            queryWasFound = true
+        }
 
         if !queryWasFound && request.url.query?.isEmpty == false {
             throw Abort(.badRequest)
@@ -103,5 +109,14 @@ struct UserIDQuery: Content {
     
     func filter(_ query: QueryBuilder<UserEventRecord>) -> QueryBuilder<UserEventRecord> {
         query.filter(\.$userID == userID)
+    }
+}
+
+struct FlagQuery: Content {
+    let flag: Bool?
+        
+    func filter(_ query: QueryBuilder<UserEventRecord>) -> QueryBuilder<UserEventRecord>? {
+        guard let flag = flag else { return nil }
+        return query.filter(\.$flag == flag)
     }
 }

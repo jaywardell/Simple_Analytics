@@ -339,6 +339,38 @@ final class UserEventControllerTests: XCTestCase {
         }
     }
 
+    func test_get_list_returns_all_userevents_that_match_flag_requested() throws {
+                
+        let sent = (0..<Int.random(in: 3..<20)).map { _ in
+            UserEvent.random(at: Date().addingTimeInterval(.random(in: 60...3600)))
+        }
+        
+        let expected = sent.filter { $0.flag == false }
+        
+        try post(sent)
+        
+        try sut.test(.GET, listPath(flag: false)) { response in
+            let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
+            XCTAssertEqual(Set(received), Set(expected))
+        }
+    }
+
+    func test_get_list_returns_all_userevents_that_match_flag_requested_true() throws {
+                
+        let sent = (0..<Int.random(in: 3..<20)).map { _ in
+            UserEvent.random(at: Date().addingTimeInterval(.random(in: 60...3600)))
+        }
+        
+        let expected = sent.filter { $0.flag == true }
+        
+        try post(sent)
+        
+        try sut.test(.GET, listPath(flag: true)) { response in
+            let received = try JSONDecoder().decode([UserEvent].self, from: response.body)
+            XCTAssertEqual(Set(received), Set(expected))
+        }
+    }
+
     // MARK: - Bad Requests
     
     func test_get_returns_404() throws {
