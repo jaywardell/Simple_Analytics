@@ -254,35 +254,13 @@ final class UserControllerTests: XCTestCase {
         }
     }
     
-    func pathString(_ path: String, adding queries: [(String, String)]) -> String {
-        guard queries.count > 0 else { return path }
-        return path + "?" + queries.map { "\($0)=\($1)" }.joined(separator: "&")
-    }
-
     func countPath(startDate: Date? = nil,
                   endDate: Date? = nil,
                   userID: UUID? = nil,
                   action: UserEvent.Action? = nil,
                   flag: Bool? = nil) -> String {
-        var queries = [(String, String)]()
-        if let startDate {
-            queries.append((UserEventController.startDate, String(startDate.timeIntervalSinceReferenceDate)))
-        }
-        if let endDate {
-            queries.append((UserEventController.endDate, String(endDate.timeIntervalSinceReferenceDate)))
-        }
-        if let userID {
-            queries.append((UserEventController.userID, userID.uuidString))
-        }
-        if let action {
-            queries.append((UserEventController.action, action.rawValue))
-        }
-        if let flag {
-            queries.append((UserEventController.flag, String(flag)))
-        }
         
-        // shuffle the queries to ensure that the server is robust about how it handles queries in any order
-        return pathString(UserController.countPath, adding: queries.shuffled())
+        endpoint(UserController.countPath, startDate: startDate, endDate: endDate, userID: userID, action: action, flag: flag)
     }
 
     func summaryPath(startDate: Date? = nil,
@@ -290,42 +268,7 @@ final class UserControllerTests: XCTestCase {
                   userID: UUID? = nil,
                   action: UserEvent.Action? = nil,
                   flag: Bool? = nil) -> String {
-        var queries = [(String, String)]()
-        if let startDate {
-            queries.append((UserEventController.startDate, String(startDate.timeIntervalSinceReferenceDate)))
-        }
-        if let endDate {
-            queries.append((UserEventController.endDate, String(endDate.timeIntervalSinceReferenceDate)))
-        }
-        if let userID {
-            queries.append((UserEventController.userID, userID.uuidString))
-        }
-        if let action {
-            queries.append((UserEventController.action, action.rawValue))
-        }
-        if let flag {
-            queries.append((UserEventController.flag, String(flag)))
-        }
-        
-        // shuffle the queries to ensure that the server is robust about how it handles queries in any order
-        return pathString(UserController.summaryPath, adding: queries.shuffled())
+ 
+        endpoint(UserController.summaryPath, startDate: startDate, endDate: endDate, userID: userID, action: action, flag: flag)
     }
-
-}
-
-// MARK: - UserEvent: Helpers
-
-fileprivate extension UserEvent {
-    func toByteBuffer() -> ByteBuffer {
-        try! JSONEncoder().encodeAsByteBuffer(self, allocator: .init())
-    }
-
-    /// returns a UserEvent with all random properties except for a date at the date passed in.
-    static func random(for userID: UUID, at date: Date) -> UserEvent {
-        UserEvent(date: date, action: .allCases.randomElement()!, userID: userID, flag: .random())
-    }
-}
-
-fileprivate extension TimeInterval {
-    static var oneDay: TimeInterval { 24*3600 }
 }

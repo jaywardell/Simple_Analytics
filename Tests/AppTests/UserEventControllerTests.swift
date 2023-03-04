@@ -446,36 +446,12 @@ final class UserEventControllerTests: XCTestCase {
         ]
     }
 
-    
-    func pathString(_ path: String, adding queries: [(String, String)]) -> String {
-        guard queries.count > 0 else { return path }
-        return path + "?" + queries.map { "\($0)=\($1)" }.joined(separator: "&")
-    }
-
     func listPath(startDate: Date? = nil,
                   endDate: Date? = nil,
                   userID: UUID? = nil,
                   action: UserEvent.Action? = nil,
                   flag: Bool? = nil) -> String {
-        var queries = [(String, String)]()
-        if let startDate {
-            queries.append((UserEventController.startDate, String(startDate.timeIntervalSinceReferenceDate)))
-        }
-        if let endDate {
-            queries.append((UserEventController.endDate, String(endDate.timeIntervalSinceReferenceDate)))
-        }
-        if let userID {
-            queries.append((UserEventController.userID, userID.uuidString))
-        }
-        if let action {
-            queries.append((UserEventController.action, action.rawValue))
-        }
-        if let flag {
-            queries.append((UserEventController.flag, String(flag)))
-        }
-        
-        // shuffle the queries to ensure that the server is robust about how it handles queries in any order
-        return pathString(UserEventController.listPath, adding: queries.shuffled())
+        endpoint(UserEventController.listPath, startDate: startDate, endDate: endDate, userID: userID, action: action, flag: flag)
     }
     
     func post(_ userEvents: [UserEvent]) throws {
@@ -494,21 +470,4 @@ final class UserEventControllerTests: XCTestCase {
                          file: StaticString = #filePath, line: UInt = #line) async throws {
         try await sut.test(.POST, UserEventController.userevents, headers: headers ?? defaultHeaders, body: byteBuffer, afterResponse: tests)
     }
-}
-
-// MARK: - UserEvent: Helpers
-
-fileprivate extension UserEvent {
-    func toByteBuffer() -> ByteBuffer {
-        try! JSONEncoder().encodeAsByteBuffer(self, allocator: .init())
-    }
-
-    /// returns a UserEvent with all random properties except for a date at the date passed in.
-    static func random(at date: Date) -> UserEvent {
-        UserEvent(date: date, action: .allCases.randomElement()!, userID: .generateRandom(), flag: .random())
-    }
-}
-
-fileprivate extension TimeInterval {
-    static var oneDay: TimeInterval { 24*3600 }
 }
