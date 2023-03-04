@@ -23,7 +23,7 @@ final class UserControllerTests: XCTestCase {
     
     // MARK: - GET - list
     func test_get_list_returns_200() throws {
-        try sut.test(.GET, UserController.users) { response in
+        try sut.test(.GET, UsersController.users) { response in
             XCTAssertEqual(response.status, .ok)
         }
     }
@@ -35,7 +35,7 @@ final class UserControllerTests: XCTestCase {
         let sent = userIDs.map { UserEvent.random(for: $0, at: Date()) }
         try post(sent)
         
-        try sut.test(.GET, UserController.users) { response in
+        try sut.test(.GET, UsersController.users) { response in
             let received = try JSONDecoder().decode([String].self, from: response.body)
             XCTAssertEqual(Set(received), Set(expected))
         }
@@ -48,7 +48,7 @@ final class UserControllerTests: XCTestCase {
         let sent = (0..<10).map { _ in UserEvent.random(for: user, at: Date().addingTimeInterval(.random(in: 60..<3600))) }
         try post(sent)
         
-        try sut.test(.GET, UserController.users) { response in
+        try sut.test(.GET, UsersController.users) { response in
             let received = try JSONDecoder().decode([String].self, from: response.body)
             XCTAssertEqual(received, [user.uuidString])
         }
@@ -57,7 +57,7 @@ final class UserControllerTests: XCTestCase {
     // MARK: - GET - count
     
     func test_get_count_returns_200() throws {
-        try sut.test(.GET, UserController.countPath) { response in
+        try sut.test(.GET, UsersController.countPath) { response in
             XCTAssertEqual(response.status, .ok)
         }
     }
@@ -70,7 +70,7 @@ final class UserControllerTests: XCTestCase {
         try post(users.map { UserEvent.random(for: $0, at: Date()) })
         try post(users.map { UserEvent.random(for: $0, at: Date()) })
 
-        try sut.test(.GET, UserController.countPath) { response in
+        try sut.test(.GET, UsersController.countPath) { response in
             let received = try JSONDecoder().decode(Int.self, from: response.body)
             XCTAssertEqual(received, users.count)
         }
@@ -174,7 +174,7 @@ final class UserControllerTests: XCTestCase {
     // MARK: - GET - summary
     
     func test_get_summary_returns_200() throws {
-        try sut.test(.GET, UserController.summaryPath) { response in
+        try sut.test(.GET, UsersController.summaryPath) { response in
             XCTAssertEqual(response.status, .ok)
         }
     }
@@ -258,7 +258,7 @@ final class UserControllerTests: XCTestCase {
                   action: UserEvent.Action? = nil,
                   flag: Bool? = nil) -> String {
         
-        endpoint(UserController.countPath, startDate: startDate, endDate: endDate, userID: userID, action: action, flag: flag)
+        endpoint(UsersController.countPath, startDate: startDate, endDate: endDate, userID: userID, action: action, flag: flag)
     }
 
     func summaryPath(startDate: Date? = nil,
@@ -267,6 +267,6 @@ final class UserControllerTests: XCTestCase {
                   action: UserEvent.Action? = nil,
                   flag: Bool? = nil) -> String {
  
-        endpoint(UserController.summaryPath, startDate: startDate, endDate: endDate, userID: userID, action: action, flag: flag)
+        endpoint(UsersController.summaryPath, startDate: startDate, endDate: endDate, userID: userID, action: action, flag: flag)
     }
 }

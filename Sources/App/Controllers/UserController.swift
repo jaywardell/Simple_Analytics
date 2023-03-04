@@ -9,12 +9,12 @@ import Vapor
 import FluentKit
 
 extension PathComponent {
-    static var users: PathComponent { PathComponent(stringLiteral: UserController.users) }
-    static var count: PathComponent { PathComponent(stringLiteral: UserController.count) }
-    static var summary: PathComponent { PathComponent(stringLiteral: UserController.summary) }
+    static var users: PathComponent { PathComponent(stringLiteral: UsersController.users) }
+    static var count: PathComponent { PathComponent(stringLiteral: UsersController.count) }
+    static var summary: PathComponent { PathComponent(stringLiteral: UsersController.summary) }
 }
 
-struct UserController {
+struct UsersController {
     static var users: String { #function }
     static var count: String { #function }
     static var summary: String { #function }
@@ -24,7 +24,7 @@ struct UserController {
 
 // MARK: - UserController: RouteCollection
 
-extension UserController: RouteCollection {
+extension UsersController: RouteCollection {
     func boot(routes: Vapor.RoutesBuilder) throws {
         let getroutes = routes
             .grouped(.constant(Self.users))
