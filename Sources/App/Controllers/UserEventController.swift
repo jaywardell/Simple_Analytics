@@ -17,8 +17,6 @@ struct UserEventController {
     static var listPath: String { [userevents, list].joined(separator: "/") }
     
     // query keys
-    static var verbose: String { #function }
-    static var verboseTrue: String { String(true) }
 
     static var startDate: String { #function }
     static var endDate: String { #function }
@@ -38,7 +36,7 @@ extension UserEventController: RouteCollection {
         getroutes.get(.list, use: list)
 
         let postroutes = getroutes
-            .grouped(HeaderCheckingMiddleware(key: Self.verbose, value: Self.verboseTrue))
+            .grouped(HeaderCheckingMiddleware(key: HTTPHeaders.verbose, value: HTTPHeaders.true))
         postroutes.post(use: add)
     }
   

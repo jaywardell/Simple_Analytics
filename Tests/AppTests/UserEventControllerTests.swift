@@ -431,11 +431,10 @@ final class UserEventControllerTests: XCTestCase {
     // MARK: - Helpers
 
     private var exampleUserID: UUID { UUID() }
-    private var defaultHeaders: HTTPHeaders { HTTPHeaders(dictionaryLiteral: ("content-type", "application/json")) }
-    private var verboseHeaders: HTTPHeaders { HTTPHeaders(dictionaryLiteral:
-        ("content-type", "application/json"),
-        (UserEventController.verbose, UserEventController.verboseTrue)
-    ) }
+    private var verboseHeaders: HTTPHeaders {
+        .content_type_json
+        .adding(.verbose_true)
+    }
 
     private var exampleValidUserEventProperties: [String:Any] {
         [
@@ -456,7 +455,7 @@ final class UserEventControllerTests: XCTestCase {
     
     func post(_ userEvents: [UserEvent]) throws {
         try userEvents.forEach {
-            _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: $0.toByteBuffer())
+            _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: HTTPHeaders.content_type_json, body: $0.toByteBuffer())
         }
     }
 
@@ -468,6 +467,7 @@ final class UserEventControllerTests: XCTestCase {
                          headers: HTTPHeaders? = nil,
                          tests: (XCTHTTPResponse) async throws ->(),
                          file: StaticString = #filePath, line: UInt = #line) async throws {
-        try await sut.test(.POST, UserEventController.userevents, headers: headers ?? defaultHeaders, body: byteBuffer, afterResponse: tests)
+        try await sut.test(.POST, UserEventController.userevents, headers: headers ?? .content_type_json, body: byteBuffer, afterResponse: tests)
     }
 }
+

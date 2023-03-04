@@ -246,11 +246,9 @@ final class UserControllerTests: XCTestCase {
 
     // MARK: - Helpers
     
-    private var defaultHeaders: HTTPHeaders { HTTPHeaders(dictionaryLiteral: ("content-type", "application/json")) }
-
     func post(_ userEvents: [UserEvent]) throws {
         try userEvents.forEach {
-            _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: $0.toByteBuffer())
+            _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: .content_type_json, body: $0.toByteBuffer())
         }
     }
     
