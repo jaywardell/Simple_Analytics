@@ -21,19 +21,19 @@ func endpoint(_ path: String,
               flag: Bool? = nil) -> String {
     var queries = [(String, String)]()
     if let startDate {
-        queries.append((UserEventController.startDate, String(startDate.timeIntervalSinceReferenceDate)))
+        queries.append((UserEventsController.startDate, String(startDate.timeIntervalSinceReferenceDate)))
     }
     if let endDate {
-        queries.append((UserEventController.endDate, String(endDate.timeIntervalSinceReferenceDate)))
+        queries.append((UserEventsController.endDate, String(endDate.timeIntervalSinceReferenceDate)))
     }
     if let userID {
-        queries.append((UserEventController.userID, userID.uuidString))
+        queries.append((UserEventsController.userID, userID.uuidString))
     }
     if let action {
-        queries.append((UserEventController.action, action.rawValue))
+        queries.append((UserEventsController.action, action.rawValue))
     }
     if let flag {
-        queries.append((UserEventController.flag, String(flag)))
+        queries.append((UserEventsController.flag, String(flag)))
     }
     
     // shuffle the queries to ensure that the server is robust about how it handles queries in any order

@@ -248,7 +248,7 @@ final class UserControllerTests: XCTestCase {
     
     func post(_ userEvents: [UserEvent]) throws {
         try userEvents.forEach {
-            _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: .content_type_json, body: $0.toByteBuffer())
+            _ = try sut.sendRequest(.POST, UserEventController.userevent, headers: .content_type_json, body: $0.toByteBuffer())
         }
     }
     
