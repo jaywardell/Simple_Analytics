@@ -54,6 +54,14 @@ final class UserControllerTests: XCTestCase {
         }
     }
 
+    // MARK: - GET - count
+    
+    func test_get_count_returns_200() throws {
+        try sut.test(.GET, UserController.count) { response in
+            XCTAssertEqual(response.status, .ok)
+        }
+    }
+
     func test_get_count_returns_count_of_users_that_have_used_app() throws {
         
         let users = (0..<Int.random(in: 3..<20)).map { _ in UUID() }
