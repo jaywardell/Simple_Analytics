@@ -21,7 +21,7 @@ final class UserControllerTests: XCTestCase {
         sut.shutdown()
     }
     
-    // MARK: GET -
+    // MARK: - GET - list
     func test_get_list_returns_200() throws {
         try sut.test(.GET, UserController.users) { response in
             XCTAssertEqual(response.status, .ok)
@@ -135,8 +135,6 @@ final class UserControllerTests: XCTestCase {
         try post(sent)
         
         
-        let startOfDay = Calendar.current.startOfDay(for: now)
-        let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
         try sut.test(.GET, countPath(flag: true)) { response in
             let received = try JSONDecoder().decode(Int.self, from: response.body)
             XCTAssertEqual(received, expected)
