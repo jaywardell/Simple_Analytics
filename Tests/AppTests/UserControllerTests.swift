@@ -205,7 +205,7 @@ final class UserControllerTests: XCTestCase {
         var counts = [String:Int]()
         for user in users {
             try (0..<Int.random(in: 0..<10)).forEach { _ in
-                let event = UserEvent.random(for: user, at: Date().addingTimeInterval(.random(in: -1000 ... 1000)))
+                let event = UserEvent.random(for: user, at: Date().addingTimeInterval(.random(in: -.oneDay ... .oneDay)))
                 try post([event])
                 if event.flag == flag {
                     counts[user.uuidString] = counts[user.uuidString, default: 0] + 1
@@ -214,6 +214,31 @@ final class UserControllerTests: XCTestCase {
         }
         
         try sut.test(.GET, summaryPath(flag: flag)) { response in
+            let received = try JSONDecoder().decode([String:Int].self, from: response.body)
+            XCTAssertEqual(received, counts)
+        }
+    }
+
+    func test_get_summary_returns_count_for_each_user_that_has_used_the_app_in_the_given_date_range() throws {
+        
+        let users = (0..<30).map { _ in UUID() }
+        
+        let now = Date()
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
+
+        var counts = [String:Int]()
+        for user in users {
+            try (0..<Int.random(in: 0..<10)).forEach { _ in
+                let event = UserEvent.random(for: user, at: Date().addingTimeInterval(.random(in: -.oneDay ... .oneDay)))
+                try post([event])
+                if event.timestamp.value >= startOfDay && event.timestamp.value <= endOfDay {
+                    counts[user.uuidString] = counts[user.uuidString, default: 0] + 1
+                }
+            }
+        }
+        
+        try sut.test(.GET, summaryPath(startDate: startOfDay, endDate: endOfDay)) { response in
             let received = try JSONDecoder().decode([String:Int].self, from: response.body)
             XCTAssertEqual(received, counts)
         }
