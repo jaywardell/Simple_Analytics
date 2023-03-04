@@ -68,7 +68,7 @@ final class UserControllerTests: XCTestCase {
         }
     }
 
-    func test_get_count_returns_count_of_users_that_have_used_app_and_had_action_passed_in() throws {
+    func test_get_count_returns_count_of_users_that_have_used_app_and_sent_a_given_action() throws {
         
         let user1 = UUID()
         let user2 = UUID()
