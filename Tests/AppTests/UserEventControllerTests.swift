@@ -439,10 +439,10 @@ final class UserEventControllerTests: XCTestCase {
 
     private var exampleValidUserEventProperties: [String:Any] {
         [
-            "userID": UUID().uuidString,
-            "timestamp": Date().timeIntervalSinceReferenceDate.rounded(),
-            "flag": true,
-            "action": UserEvent.Action.start.rawValue
+            UserEventController.userID: UUID().uuidString,
+            UserEventController.timestamp: Date().timeIntervalSinceReferenceDate.rounded(),
+            UserEventController.flag: true,
+            UserEventController.action: UserEvent.Action.start.rawValue
         ]
     }
 

@@ -22,6 +22,7 @@ struct UserEventController {
 
     static var startDate: String { #function }
     static var endDate: String { #function }
+    static var timestamp: String { #function }
     static var action: String { #function }
     static var flag: String { #function }
     static var userID: String { #function }
