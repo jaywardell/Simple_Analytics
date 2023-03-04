@@ -57,7 +57,7 @@ final class UserControllerTests: XCTestCase {
     // MARK: - GET - count
     
     func test_get_count_returns_200() throws {
-        try sut.test(.GET, UserController.count) { response in
+        try sut.test(.GET, UserController.countPath) { response in
             XCTAssertEqual(response.status, .ok)
         }
     }
