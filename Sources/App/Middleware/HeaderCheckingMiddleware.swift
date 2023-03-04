@@ -38,7 +38,7 @@ struct HeaderCheckingMiddleware: AsyncMiddleware {
 /// used for testing HeaderCheckingMiddleware
 struct HeaderCheckingMiddlewareTestsController {
     static var standardResult: Int { 42 }
-    static var middleware_example: String { #function }
+    static var middleware_example: String { #function + String(describing: Self.self) }
     static var example_header_key: String { #function }
     static var example_header_value: String { #function }
     static let middleware =

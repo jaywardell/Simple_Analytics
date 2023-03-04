@@ -9,5 +9,6 @@ func routes(_ app: Application) throws {
 
     if app.environment == .testing {
         try app.register(collection: HeaderCheckingMiddlewareTestsController())
+        try app.register(collection: RequiresQueryMiddlewareTestsController())
     }
 }
