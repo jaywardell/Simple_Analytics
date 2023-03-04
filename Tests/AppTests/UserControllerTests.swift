@@ -171,6 +171,54 @@ final class UserControllerTests: XCTestCase {
         }
     }
 
+    // MARK: - GET - summary
+    
+    func test_get_summary_returns_200() throws {
+        try sut.test(.GET, UserController.summaryPath) { response in
+            XCTAssertEqual(response.status, .ok)
+        }
+    }
+
+    func test_get_summary_returns_count_for_each_user_that_has_used_the_app() throws {
+        
+        let users = (0..<30).map { _ in UUID() }
+
+        var counts = [String:Int]()
+        for user in users {
+            try (0..<Int.random(in: 0..<3)).forEach { _ in
+                try post([UserEvent.random(for: user, at: Date().addingTimeInterval(.random(in: -1000 ... 1000)))])
+                counts[user.uuidString] = counts[user.uuidString, default: 0] + 1
+            }
+        }
+        
+        try sut.test(.GET, summaryPath()) { response in
+            let received = try JSONDecoder().decode([String:Int].self, from: response.body)
+            XCTAssertEqual(received, counts)
+        }
+    }
+
+    func test_get_summary_returns_count_for_each_user_that_has_used_the_app_and_passed_the_given_flag() throws {
+        
+        let users = (0..<30).map { _ in UUID() }
+        let flag = true
+        
+        var counts = [String:Int]()
+        for user in users {
+            try (0..<Int.random(in: 0..<10)).forEach { _ in
+                let event = UserEvent.random(for: user, at: Date().addingTimeInterval(.random(in: -1000 ... 1000)))
+                try post([event])
+                if event.flag == flag {
+                    counts[user.uuidString] = counts[user.uuidString, default: 0] + 1
+                }
+            }
+        }
+        
+        try sut.test(.GET, summaryPath(flag: flag)) { response in
+            let received = try JSONDecoder().decode([String:Int].self, from: response.body)
+            XCTAssertEqual(received, counts)
+        }
+    }
+
     // MARK: - Helpers
     
     private var defaultHeaders: HTTPHeaders { HTTPHeaders(dictionaryLiteral: ("content-type", "application/json")) }
@@ -210,6 +258,32 @@ final class UserControllerTests: XCTestCase {
         
         // shuffle the queries to ensure that the server is robust about how it handles queries in any order
         return pathString(UserController.countPath, adding: queries.shuffled())
+    }
+
+    func summaryPath(startDate: Date? = nil,
+                  endDate: Date? = nil,
+                  userID: UUID? = nil,
+                  action: UserEvent.Action? = nil,
+                  flag: Bool? = nil) -> String {
+        var queries = [(String, String)]()
+        if let startDate {
+            queries.append((UserEventController.startDate, String(startDate.timeIntervalSinceReferenceDate)))
+        }
+        if let endDate {
+            queries.append((UserEventController.endDate, String(endDate.timeIntervalSinceReferenceDate)))
+        }
+        if let userID {
+            queries.append((UserEventController.userID, userID.uuidString))
+        }
+        if let action {
+            queries.append((UserEventController.action, action.rawValue))
+        }
+        if let flag {
+            queries.append((UserEventController.flag, String(flag)))
+        }
+        
+        // shuffle the queries to ensure that the server is robust about how it handles queries in any order
+        return pathString(UserController.summaryPath, adding: queries.shuffled())
     }
 
 }

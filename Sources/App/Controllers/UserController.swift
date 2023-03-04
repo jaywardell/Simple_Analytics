@@ -11,12 +11,15 @@ import FluentKit
 extension PathComponent {
     static var users: PathComponent { PathComponent(stringLiteral: UserController.users) }
     static var count: PathComponent { PathComponent(stringLiteral: UserController.count) }
+    static var summary: PathComponent { PathComponent(stringLiteral: UserController.summary) }
 }
 
 struct UserController {
     static var users: String { #function }
     static var count: String { #function }
+    static var summary: String { #function }
     static var countPath: String { [users, count].joined(separator: "/") }
+    static var summaryPath: String { [users, summary].joined(separator: "/") }
 }
 
 // MARK: - UserController: RouteCollection
@@ -25,8 +28,10 @@ extension UserController: RouteCollection {
     func boot(routes: Vapor.RoutesBuilder) throws {
         let getroutes = routes
             .grouped(.constant(Self.users))
+        
         getroutes.get(use: list)
         getroutes.get(.count, use: count)
+        getroutes.get(.summary, use: summarize)
     }
     
     private func query(from request: Request) throws -> QueryBuilder<UserEventRecord> {
@@ -34,12 +39,13 @@ extension UserController: RouteCollection {
             throw Abort(.badRequest)
         }
         
-        return query.unique()
+        return query
     }
     
     private func list(request: Request) async throws -> [String] {
   
         try await query(from: request)
+            .unique()
             .all(\.$userID)
             .map(\.uuidString)
     }
@@ -47,7 +53,37 @@ extension UserController: RouteCollection {
     private func count(request: Request) async throws -> Int {
         
         try await query(from: request)
+            .unique()
             .count(\.$userID)
     }
 
+    private func summarize(request: Request) async throws -> [String:Int] {
+        let query = try query(from: request)
+        
+        let events = try await query
+            .all()
+        
+        let users = try await query
+            .unique()
+            .all(\.$userID)
+            .map(\.uuidString)
+        
+        return users.toDictionary { user in
+            events
+                .filter { $0.userID.uuidString == user }
+                .count
+        }
+    }
+}
+
+import Foundation
+
+extension Array {
+    func toDictionary<Output>(_ transform: (Element)->Output)  -> [Element:Output] {
+        var out = [Element:Output]()
+        for element in self {
+            out[element] = transform(element)
+        }
+        return out
+    }
 }
