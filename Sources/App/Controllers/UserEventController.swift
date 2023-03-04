@@ -48,35 +48,9 @@ extension UserEventController: RouteCollection {
         return record.userEvent
     }
     
-    func list(request: Request) async throws -> [UserEvent] {
-        var query = UserEventRecord.query(on: request.db)
+    func list(request: Request) async throws -> [UserEvent] {  
+        guard let query = UserEventRecord.query(from: request) else {  throw Abort(.badRequest) }
         
-        var queryWasFound = false
-        
-        // TODO: this looks like a pattern that could be simplified somehow
-        if let dateRange = try? request.query.decode(DateRangeQuery.self) {
-            query = dateRange.filter(query)
-            queryWasFound = true
-        }
-        if let actionQuery = try? request.query.decode(ActionQuery.self) {
-            query = actionQuery.filter(query)
-            queryWasFound = true
-        }
-        if let userIDQuery = try? request.query.decode(UserIDQuery.self) {
-            query = userIDQuery.filter(query)
-            queryWasFound = true
-        }
-        
-        if let flagQuery = try? request.query.decode(FlagQuery.self),
-           let q = flagQuery.filter(query) {
-            query = q
-            queryWasFound = true
-        }
-
-        if !queryWasFound && request.url.query?.isEmpty == false {
-            throw Abort(.badRequest)
-        }
-                
         return try await query
             .all()
             .map(\.userEvent)

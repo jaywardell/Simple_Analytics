@@ -29,22 +29,24 @@ extension UserController: RouteCollection {
         getroutes.get(.count, use: count)
     }
     
-    private func userIDs(in database: Database) -> QueryBuilder<UserEventRecord> {
-        UserEventRecord.query(on: database)
-            .unique()
+    private func query(from request: Request) throws -> QueryBuilder<UserEventRecord> {
+        guard let query = UserEventRecord.query(from: request) else {
+            throw Abort(.badRequest)
+        }
+        
+        return query.unique()
     }
     
     private func list(request: Request) async throws -> [String] {
   
-        try await userIDs(in: request.db)
+        try await query(from: request)
             .all(\.$userID)
             .map(\.uuidString)
     }
     
     private func count(request: Request) async throws -> Int {
-        try await userIDs(in: request.db)
-            .all(\.$userID)
-            .count
+        try await query(from: request)
+            .count(\.$userID)
     }
 
 }

@@ -68,6 +68,29 @@ final class UserControllerTests: XCTestCase {
         }
     }
 
+    func test_get_count_returns_count_of_users_that_have_used_app_and_had_action_passed_in() throws {
+        
+        let user1 = UUID()
+        let user2 = UUID()
+        let user3 = UUID()
+        let events = [
+            UserEvent(date: Date(), action: .start, userID: user1),
+            UserEvent(date: Date(), action: .start, userID: user1),
+            UserEvent(date: Date(), action: .start, userID: user2),
+            UserEvent(date: Date(), action: .start, userID: user2),
+            UserEvent(date: Date(), action: .stop, userID: user3),
+            UserEvent(date: Date(), action: .stop, userID: user3),
+        ]
+        try post(events)
+        
+        try sut.test(.GET, countPath(action: .start)) { response in
+            let received = try JSONDecoder().decode(Int.self, from: response.body)
+            XCTAssertEqual(response.status, .ok)
+            XCTAssertEqual(received, 2)
+        }
+    }
+
+    
     // MARK: - Helpers
     
     private var defaultHeaders: HTTPHeaders { HTTPHeaders(dictionaryLiteral: ("content-type", "application/json")) }
@@ -77,6 +100,38 @@ final class UserControllerTests: XCTestCase {
             _ = try sut.sendRequest(.POST, UserEventController.userevents, headers: defaultHeaders, body: $0.toByteBuffer())
         }
     }
+    
+    func pathString(_ path: String, adding queries: [(String, String)]) -> String {
+        guard queries.count > 0 else { return path }
+        return path + "?" + queries.map { "\($0)=\($1)" }.joined(separator: "&")
+    }
+
+    func countPath(startDate: Date? = nil,
+                  endDate: Date? = nil,
+                  userID: UUID? = nil,
+                  action: UserEvent.Action? = nil,
+                  flag: Bool? = nil) -> String {
+        var queries = [(String, String)]()
+        if let startDate {
+            queries.append((UserEventController.startDate, String(startDate.timeIntervalSinceReferenceDate)))
+        }
+        if let endDate {
+            queries.append((UserEventController.endDate, String(endDate.timeIntervalSinceReferenceDate)))
+        }
+        if let userID {
+            queries.append((UserEventController.userID, userID.uuidString))
+        }
+        if let action {
+            queries.append((UserEventController.action, action.rawValue))
+        }
+        if let flag {
+            queries.append((UserEventController.flag, String(flag)))
+        }
+        
+        // shuffle the queries to ensure that the server is robust about how it handles queries in any order
+        return pathString(UserController.countPath, adding: queries.shuffled())
+    }
+
 }
 
 // MARK: - UserEvent: Helpers
