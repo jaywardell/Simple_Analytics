@@ -7,6 +7,7 @@
 
 import Vapor
 
+// MARK: - application/json
 extension HTTPHeaders {
     private static var content: String { #function }
     private static var type: String { #function }
@@ -17,32 +18,26 @@ extension HTTPHeaders {
     static var application_json: String {
         [application, json].joined(separator: "/")
     }
-    
-    static var content_type_json: HTTPHeaders { HTTPHeaders(dictionaryLiteral: (Self.content_type, Self.application_json)) }
-    
-    static var verbose: String { #function }
-    static var `true`: String { String(true) }
-    static var `false`: String { String(false) }
 
-    static var verbose_true: HTTPHeaders {
-        HTTPHeaders(dictionaryLiteral: (verbose, Self.true))
+    func content_type_json() -> HTTPHeaders {
+        adding((Self.content_type, Self.application_json))
     }
+
+    static var content_type_json: HTTPHeaders {
+        HTTPHeaders().content_type_json()
+    }
+}
+
+// MARK: - verbose
+extension HTTPHeaders {
+    static var verbose: String { #function }
     
     static var verbose_false: HTTPHeaders {
         HTTPHeaders(dictionaryLiteral: (verbose, Self.false))
     }
 
-    
-    func adding<S: Sequence>(_ other: S) -> HTTPHeaders where S.Element == (String, String) {
-        var out = self
-        out.add(contentsOf: other)
-        
-        return out
+    func verbose(_ value: Bool = true) -> HTTPHeaders {
+        adding((Self.verbose, value ? Self.true : Self.false))
     }
     
-    func adding(_ other: HTTPHeaders) -> HTTPHeaders  {
-        assert(other.count == 1)
-        return adding([other.first!])
-    }
-
 }

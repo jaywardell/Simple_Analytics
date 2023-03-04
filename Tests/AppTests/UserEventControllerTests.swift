@@ -433,7 +433,7 @@ final class UserEventControllerTests: XCTestCase {
     private var exampleUserID: UUID { UUID() }
     private var verboseHeaders: HTTPHeaders {
         .content_type_json
-        .adding(.verbose_true)
+        .verbose()
     }
 
     private var exampleValidUserEventProperties: [String:Any] {
