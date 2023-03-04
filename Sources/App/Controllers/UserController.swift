@@ -45,6 +45,7 @@ extension UserController: RouteCollection {
     }
     
     private func count(request: Request) async throws -> Int {
+        
         try await query(from: request)
             .count(\.$userID)
     }
