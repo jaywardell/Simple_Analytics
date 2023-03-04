@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import FluentKit
 
 extension PathComponent {
     static var users: PathComponent { PathComponent(stringLiteral: UserController.users) }
@@ -28,16 +29,20 @@ extension UserController: RouteCollection {
         getroutes.get(.count, use: count)
     }
     
-    private func list(request: Request) async throws -> [String] {
-        try await UserEventRecord.query(on: request.db)
+    private func userIDs(in database: Database) -> QueryBuilder<UserEventRecord> {
+        UserEventRecord.query(on: database)
             .unique()
+    }
+    
+    private func list(request: Request) async throws -> [String] {
+  
+        try await userIDs(in: request.db)
             .all(\.$userID)
-            .map(String.init)
+            .map(\.uuidString)
     }
     
     private func count(request: Request) async throws -> Int {
-        try await UserEventRecord.query(on: request.db)
-            .unique()
+        try await userIDs(in: request.db)
             .all(\.$userID)
             .count
     }
