@@ -30,7 +30,7 @@ final class UserControllerTests: XCTestCase {
     
     func test_get_list_returns_all_users_that_have_used_app() throws {
                 
-        let userIDs = [UUID(), UUID(), UUID()]
+        let userIDs = (0..<10).map { _ in UUID() }
         let expected = userIDs.map(\.uuidString)
         let sent = userIDs.map { UserEvent.random(for: $0, at: Date()) }
         try post(sent)
