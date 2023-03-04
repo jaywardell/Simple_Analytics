@@ -90,7 +90,81 @@ final class UserControllerTests: XCTestCase {
         }
     }
 
+    func test_get_count_returns_count_of_all_users_that_used_app_in_date_range() throws {
+                
+        let now = Date()
+            
+        let users = [UUID(), UUID(), UUID()]
+        
+        let sent = users.flatMap { [
+            UserEvent.random(for: $0, at: now.addingTimeInterval(-.oneDay)),
+            UserEvent.random(for: $0, at: now),
+            UserEvent.random(for: $0, at: now.addingTimeInterval(.oneDay))
+        ]
+        }
+        
+        try post(sent)
+        
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
+        try sut.test(.GET, countPath(startDate: startOfDay, endDate: endOfDay)) { response in
+            let received = try JSONDecoder().decode(Int.self, from: response.body)
+            XCTAssertEqual(received, users.count)
+        }
+    }
     
+    func test_get_count_returns_count_of_all_users_that_have_had_flag_turned_on() throws {
+                
+        let now = Date()
+            
+        let users = (0..<30).map { _ in UUID() }
+        
+        let sent = users.map {
+            UserEvent.random(for: $0, at: now)
+        }
+        let expected = sent.filter { $0.flag == true }.count
+
+        try post(sent)
+        
+        
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
+        try sut.test(.GET, countPath(flag: true)) { response in
+            let received = try JSONDecoder().decode(Int.self, from: response.body)
+            XCTAssertEqual(received, expected)
+        }
+    }
+
+    func test_get_count_returns_count_of_all_users_that_used_app_in_date_range_with_a_given_action() throws {
+                
+        let now = Date()
+        let action = UserEvent.Action.pause
+
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
+
+        let users = (0..<30).map { _ in UUID() }
+        
+        let sent = users.flatMap { [
+            UserEvent.random(for: $0, at: now.addingTimeInterval(-.oneDay)),
+            UserEvent.random(for: $0, at: now),
+            UserEvent.random(for: $0, at: now.addingTimeInterval(.oneDay))
+        ]
+        }
+        
+        let eventsWithActionOnDate = sent.filter { $0.action == action }
+            .filter { $0.timestamp.value >= startOfDay }
+            .filter { $0.timestamp.value <= endOfDay }
+        let usersWhoSentAction = Set(eventsWithActionOnDate.map(\.userID))
+        
+        try post(sent)
+        
+        try sut.test(.GET, countPath(startDate: startOfDay, endDate: endOfDay, action: action)) { response in
+            let received = try JSONDecoder().decode(Int.self, from: response.body)
+            XCTAssertEqual(received, usersWhoSentAction.count)
+        }
+    }
+
     // MARK: - Helpers
     
     private var defaultHeaders: HTTPHeaders { HTTPHeaders(dictionaryLiteral: ("content-type", "application/json")) }
