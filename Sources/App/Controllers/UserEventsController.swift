@@ -15,10 +15,11 @@ extension PathComponent {
 struct UserEventsController {
     static var userevents: String { #function }
     static var list: String { #function }
-    static var listPath: String { [userevents, list].joined(separator: "/") }
-    
-    // query keys
+    static var listPath: String { userevents }
 
+    static var count: String { #function }
+    static var countPath: String { [userevents, count].joined(separator: "/") }
+    
     static var startDate: String { #function }
     static var endDate: String { #function }
     static var timestamp: String { #function }
@@ -34,7 +35,8 @@ extension UserEventsController: RouteCollection {
     func boot(routes: Vapor.RoutesBuilder) throws {
         let getroutes = routes
             .grouped(.userevents)
-        getroutes.get(.list, use: list)
+        getroutes.get(use: list)
+        getroutes.get(.count, use: count)
     }
   
     func list(request: Request) async throws -> [UserEvent] {
@@ -43,6 +45,13 @@ extension UserEventsController: RouteCollection {
         return try await query
             .all()
             .map(\.userEvent)
+    }
+    
+    func count(request: Request) async throws -> Int {
+        guard let query = UserEventRecord.query(from: request) else {  throw Abort(.badRequest) }
+        
+        return try await query
+            .count()
     }
 }
 

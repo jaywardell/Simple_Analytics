@@ -246,6 +246,62 @@ final class UserEventsControllerTest: XCTestCase {
         }
     }
 
+    
+    // MARK: GET count -
+    func test_get_count_returns_200() throws {
+        try sut.test(.GET, UserEventsController.countPath) { response in
+            XCTAssertEqual(response.status, .ok)
+        }
+    }
+
+    func test_get_count_returns_all_userevents_that_match_flag_requested_true() throws {
+                
+        let sent = (0..<Int.random(in: 3..<20)).map { _ in
+            UserEvent.random(at: Date().addingTimeInterval(.random(in: 60...3600)))
+        }
+        
+        let expected = sent.filter { $0.flag == true }
+        
+        try post(sent)
+        
+        try sut.test(.GET, countPath(flag: true)) { response in
+            let received = try JSONDecoder().decode(Int.self, from: response.body)
+            XCTAssertEqual(received, expected.count)
+        }
+    }
+
+    func test_get_count_stress_test_send_all_query_keys() throws {
+                
+        let now = Date()
+        let dateRange: ClosedRange<TimeInterval> = -.oneDay ... .oneDay
+        
+        let sent = (0..<300).map { _ in
+            UserEvent.random(at: now.addingTimeInterval(.random(in: dateRange)))
+        }
+
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
+        
+        let happeningToday = sent.filter {
+            $0.timestamp.value >= startOfDay &&
+            $0.timestamp.value <= endOfDay
+        }
+        
+        let expected = happeningToday.randomElement()!
+        
+        try post(sent)
+        
+        let path = countPath(startDate: startOfDay,
+                            endDate: endOfDay,
+                            userID: expected.userID,
+                            action: expected.action,
+                            flag: expected.flag)
+        try sut.test(.GET, path) { response in
+            let received = try JSONDecoder().decode(Int.self, from: response.body)
+            XCTAssertEqual(received, 1)
+        }
+    }
+
     // MARK: - Helpers
 
     private var exampleUserID: UUID { UUID() }
@@ -258,6 +314,14 @@ final class UserEventsControllerTest: XCTestCase {
         endpoint(UserEventsController.listPath, startDate: startDate, endDate: endDate, userID: userID, action: action, flag: flag)
     }
     
+    func countPath(startDate: Date? = nil,
+                  endDate: Date? = nil,
+                  userID: UUID? = nil,
+                  action: UserEvent.Action? = nil,
+                  flag: Bool? = nil) -> String {
+        endpoint(UserEventsController.countPath, startDate: startDate, endDate: endDate, userID: userID, action: action, flag: flag)
+    }
+
     func post(_ userEvents: [UserEvent]) throws {
         try userEvents.forEach {
             _ = try sut.sendRequest(.POST, UserEventController.userevent, headers: HTTPHeaders.content_type_json, body: $0.toByteBuffer())
