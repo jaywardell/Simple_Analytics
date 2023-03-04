@@ -244,6 +244,75 @@ final class UserControllerTests: XCTestCase {
         }
     }
 
+    // MARK: - Bad Requests
+    
+    func test_post_returns_404() throws {
+        
+        try sut.test(.POST, UsersController.users, afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_put_returns_404() throws {
+
+        try sut.test(.PUT, UsersController.users, afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_delete_returns_404() throws {
+
+        try sut.test(.DELETE, UsersController.users, afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    // MARK: - count
+    
+    func test_post_count_returns_404() throws {
+        
+        try sut.test(.POST, countPath(), afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_put_count_returns_404() throws {
+
+        try sut.test(.PUT, countPath(), afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_delete_count_returns_404() throws {
+
+        try sut.test(.DELETE, countPath(), afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    // MARK: - summary
+
+    func test_post_summary_returns_404() throws {
+        
+        try sut.test(.POST, summaryPath(), afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_put_summary_returns_404() throws {
+
+        try sut.test(.PUT, summaryPath(), afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_delete_summary_returns_404() throws {
+
+        try sut.test(.DELETE, summaryPath(), afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
     // MARK: - Helpers
     
     func post(_ userEvents: [UserEvent]) throws {

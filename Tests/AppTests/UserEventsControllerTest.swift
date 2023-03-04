@@ -302,6 +302,50 @@ final class UserEventsControllerTest: XCTestCase {
         }
     }
 
+    // MAKR: - Bad Requests
+    func test_post_returns_404() throws {
+        
+        try sut.test(.POST, UserEventsController.userevents, afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_put_returns_404() throws {
+
+        try sut.test(.PUT, UserEventsController.userevents, afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_delete_returns_404() throws {
+
+        try sut.test(.DELETE, UserEventsController.userevents, afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    // MAKR: -
+    func test_post_count_returns_404() throws {
+        
+        try sut.test(.POST, countPath(), afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_put_count_returns_404() throws {
+
+        try sut.test(.PUT, countPath(), afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
+    func test_delete_count_returns_404() throws {
+
+        try sut.test(.DELETE, countPath(), afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+        })
+    }
+
     // MARK: - Helpers
 
     private var exampleUserID: UUID { UUID() }
