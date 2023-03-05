@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import SimpleAnalyticsTypes
 
 extension PathComponent {
     static var userevents: PathComponent { PathComponent(stringLiteral: UserEventsController.userevents) }

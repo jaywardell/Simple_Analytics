@@ -7,6 +7,7 @@
 
 import Vapor
 import FluentKit
+import SimpleAnalyticsTypes
 
 struct ActionQuery: Content {
     let action: UserEvent.Action

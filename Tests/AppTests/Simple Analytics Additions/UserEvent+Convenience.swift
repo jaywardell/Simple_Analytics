@@ -7,6 +7,7 @@
 
 @testable import App
 import Vapor
+import SimpleAnalyticsTypes
 
 
 // these are really only used in the tests, but they work here

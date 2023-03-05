@@ -7,6 +7,7 @@
 
 @testable import App
 import Foundation
+import SimpleAnalyticsTypes
 
 func pathString(_ path: String, adding queries: [(String, String)]) -> String {
     guard queries.count > 0 else { return path }

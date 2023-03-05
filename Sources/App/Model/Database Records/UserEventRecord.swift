@@ -7,6 +7,7 @@
 
 import Vapor
 import FluentKit
+import SimpleAnalyticsTypes
 
 extension FieldKey {
     static var timestamp: FieldKey { #function }

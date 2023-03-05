@@ -6,5 +6,6 @@
 //
 
 import Vapor
+import SimpleAnalyticsTypes
 
 extension UserEvent: Content {}

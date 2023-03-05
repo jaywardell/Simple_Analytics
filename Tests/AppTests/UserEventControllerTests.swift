@@ -7,6 +7,7 @@
 
 @testable import App
 import XCTVapor
+import SimpleAnalyticsTypes
 
 final class UserEventControllerTests: XCTestCase {
 
