@@ -24,11 +24,10 @@ struct HeaderCheckingMiddleware: AsyncMiddleware {
     
     func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {
         let response = try await next.respond(to: request)
-        if let value = request.headers[key].first,
-           value == self.value {
-            return response
-        }
-        return Response(status: .ok, version: response.version, headersNoUpdate: response.headers, body: defaultBody)
+        let hasExpectedHeader = request.headers[key].first == self.value
+        
+        response.body = hasExpectedHeader ? response.body : defaultBody
+        return response
     }
 }
 
