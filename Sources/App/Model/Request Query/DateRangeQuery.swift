@@ -9,15 +9,15 @@ import Vapor
 import FluentKit
 
 struct DateRangeQuery: Content {
-    var startDate: InternalDate
-    var endDate: InternalDate
-    var start: Double { startDate.value.timeIntervalSinceReferenceDate }
-    var end: Double { endDate.value.timeIntervalSinceReferenceDate }
+    var startDate: TimeInterval
+    var endDate: TimeInterval
+    var start: Double { startDate }
+    var end: Double { endDate }
     
     func filter(_ query: QueryBuilder<UserEventRecord>) -> QueryBuilder<UserEventRecord> {
         query
-            .filter(\.$timestamp  >= startDate.value.timeIntervalSinceReferenceDate)
-            .filter(\.$timestamp  <= endDate.value.timeIntervalSinceReferenceDate)
+            .filter(\.$timestamp  >= startDate)
+            .filter(\.$timestamp  <= endDate)
     }
 }
 

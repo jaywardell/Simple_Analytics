@@ -150,8 +150,8 @@ final class UserEventsControllerTest: XCTestCase {
         let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
         let expected = sent.filter {
             $0.action == .pause &&
-            $0.timestamp.value >= startOfDay &&
-            $0.timestamp.value <= endOfDay
+            $0.timestamp >= startOfDay.timeIntervalSinceReferenceDate &&
+            $0.timestamp <= endOfDay.timeIntervalSinceReferenceDate
         }
         
         try post(sent)
@@ -227,8 +227,8 @@ final class UserEventsControllerTest: XCTestCase {
         let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
         
         let happeningToday = sent.filter {
-            $0.timestamp.value >= startOfDay &&
-            $0.timestamp.value <= endOfDay
+            $0.timestamp >= startOfDay.timeIntervalSinceReferenceDate &&
+            $0.timestamp <= endOfDay.timeIntervalSinceReferenceDate
         }
         
         let expected = happeningToday.randomElement()!
@@ -283,8 +283,8 @@ final class UserEventsControllerTest: XCTestCase {
         let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
         
         let happeningToday = sent.filter {
-            $0.timestamp.value >= startOfDay &&
-            $0.timestamp.value <= endOfDay
+            $0.timestamp >= startOfDay.timeIntervalSinceReferenceDate &&
+            $0.timestamp <= endOfDay.timeIntervalSinceReferenceDate
         }
         
         let expected = happeningToday.randomElement()!

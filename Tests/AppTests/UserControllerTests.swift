@@ -159,8 +159,8 @@ final class UserControllerTests: XCTestCase {
         }
         
         let eventsWithActionOnDate = sent.filter { $0.action == action }
-            .filter { $0.timestamp.value >= startOfDay }
-            .filter { $0.timestamp.value <= endOfDay }
+            .filter { $0.timestamp >= startOfDay.timeIntervalSinceReferenceDate }
+            .filter { $0.timestamp <= endOfDay.timeIntervalSinceReferenceDate }
         let usersWhoSentAction = Set(eventsWithActionOnDate.map(\.userID))
         
         try post(sent)
@@ -232,7 +232,7 @@ final class UserControllerTests: XCTestCase {
             try (0..<Int.random(in: 0..<10)).forEach { _ in
                 let event = UserEvent.random(for: user, at: Date().addingTimeInterval(.random(in: -.oneDay ... .oneDay)))
                 try post([event])
-                if event.timestamp.value >= startOfDay && event.timestamp.value <= endOfDay {
+                if event.timestamp >= startOfDay.timeIntervalSinceReferenceDate && event.timestamp <= endOfDay.timeIntervalSinceReferenceDate {
                     counts[user.uuidString] = counts[user.uuidString, default: 0] + 1
                 }
             }

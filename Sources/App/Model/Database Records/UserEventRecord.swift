@@ -28,7 +28,7 @@ final class UserEventRecord: Model {
     var userID: UUID
     
     @Field(key: .timestamp)
-    var timestamp: Double
+    var timestamp: TimeInterval
 
     @Field(key: .flag)
     var flag: Bool
@@ -46,7 +46,7 @@ final class UserEventRecord: Model {
         // don't use a Fluent @Timestamp
         // because we want the time that the event happened
         // not the time that the record was created
-        self.timestamp = userEvent.timestamp.value.timeIntervalSinceReferenceDate
+        self.timestamp = userEvent.timestamp
         
         self.userID = userEvent.userID
         
