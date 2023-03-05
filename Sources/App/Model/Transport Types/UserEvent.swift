@@ -5,9 +5,9 @@
 //  Created by Joseph Wardell on 3/1/23.
 //
 
-import Vapor
+import Foundation
 
-struct UserEvent: Content, Equatable, Hashable {
+struct UserEvent: Equatable, Hashable, Codable {
     
     let userID: UUID
     
