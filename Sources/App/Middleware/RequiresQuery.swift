@@ -28,8 +28,6 @@ enum RequiresQuery: AsyncMiddleware {
 struct RequiresQueryMiddlewareTestsController {
     static var standardResult: Int { 42 }
     static var middleware_example: String { #function + String(describing: Self.self) }
-//    static let middleware =
-//    RequiresQueryMiddleware()
 }
 
 // MARK: - RequiresQueryMiddlewareTestsController: RouteCollection
