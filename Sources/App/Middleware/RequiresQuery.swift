@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  RequiresQuery.swift
 //  
 //
 //  Created by Joseph Wardell on 3/4/23.
@@ -7,7 +7,7 @@
 
 import Vapor
 
-enum RequiresQueryMiddleware: AsyncMiddleware {
+enum RequiresQuery: AsyncMiddleware {
     
     case middleware
     
@@ -17,8 +17,7 @@ enum RequiresQueryMiddleware: AsyncMiddleware {
             throw Abort(.badRequest )
         }
         
-        let response = try await next.respond(to: request)
-        return response
+        return try await next.respond(to: request)
     }
 }
 
@@ -40,7 +39,7 @@ extension RequiresQueryMiddlewareTestsController: RouteCollection {
     func boot(routes: Vapor.RoutesBuilder) throws {
         let group = routes
             .grouped(.constant(Self.middleware_example))
-            .grouped(RequiresQueryMiddleware.middleware)
+            .grouped(RequiresQuery.middleware)
         group.get { _ in Self.standardResult }
     }
 }
