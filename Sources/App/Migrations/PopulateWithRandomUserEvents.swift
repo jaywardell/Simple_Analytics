@@ -13,11 +13,12 @@ final class PopulateWithRandomUserEvents: AsyncMigration {
         
     static var prepopulate: String { "prepopulate_with_random" }
     static var prepopulateCount: Int { 10_000 }
+    static var timeSpan: TimeInterval { 24*2600*365*3 }
     private var createEventIDs = [UUID]()
     
     func prepare(on database: FluentKit.Database) async throws {
         for _ in 0..<Self.prepopulateCount {
-            let event = UserEvent(date: Date(), action: .allCases.randomElement()!, userID: UUID(), flag: .random())
+            let event = UserEvent.random(in: -Self.timeSpan ... 0)
             let record = UserEventRecord(event)
             try await record.create(on: database)
         }

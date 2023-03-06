@@ -7,6 +7,7 @@
 
 @testable import App
 import XCTVapor
+import SimpleAnalyticsTypes
 
 final class PopulateWithRandomUserEventsTests: SimpleVaporTests {
 
@@ -32,6 +33,28 @@ final class PopulateWithRandomUserEventsTests: SimpleVaporTests {
             let received = try JSONDecoder().decode(Int.self, from: response.body)
             XCTAssertEqual(received, PopulateWithRandomUserEvents.prepopulateCount)
         }
+    }
+
+    func test_populates_database_with_events_in_the_last_3_years() throws {
+        let sut = try makeSUT()
+                
+        let now = Date()
+        
+        let threeYearsAgo = now.addingTimeInterval(-PopulateWithRandomUserEvents.timeSpan)
+        let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
+        try sut.test(.GET, countPath(startDate: threeYearsAgo, endDate: endOfDay)) { response in
+            let received = try JSONDecoder().decode(Int.self, from: response.body)
+            XCTAssertEqual(received, PopulateWithRandomUserEvents.prepopulateCount)
+        }
+    }
+
+    func countPath(startDate: Date? = nil,
+                  endDate: Date? = nil,
+                  userID: UUID? = nil,
+                  action: UserEvent.Action? = nil,
+                  flag: Bool? = nil) -> String {
+        
+        endpoint(UsersController.countPath, startDate: startDate, endDate: endDate, userID: userID, action: action, flag: flag)
     }
 
 }
