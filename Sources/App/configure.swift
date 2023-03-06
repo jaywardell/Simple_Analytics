@@ -8,7 +8,7 @@ public func configure(_ app: Application) throws {
     app.databases.use(.sqlite(.memory), as: .sqlite)
     
     app.migrations.add(CreateUserEventRecordTable.migration)
-    if nil != Environment.get(PopulateWithRandomUserEvents.prepopulate) {
+    if PopulateWithRandomUserEvents.shouldPrepopulate() {
         app.migrations.add(PopulateWithRandomUserEvents())
     }
     

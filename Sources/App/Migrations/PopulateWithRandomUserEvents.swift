@@ -16,7 +16,19 @@ final class PopulateWithRandomUserEvents: AsyncMigration {
     static var timeSpan: TimeInterval { 24*2600*365*3 }
     private var createEventIDs = [UUID]()
     
+    static func shouldPrepopulate() -> Bool {
+        Environment.get("prepopulate") == PopulateWithRandomUserEvents.prepopulate
+    }
+    
+    let logger = Logger(label: String(describing: PopulateWithRandomUserEvents.self))
+    private func log(_ string: Logger.Message) {
+        logger.info(string)
+    }
+    
     func prepare(on database: FluentKit.Database) async throws {
+
+        log("Populating database with \(Self.prepopulateCount) events starting at \(Date().addingTimeInterval(-Self.timeSpan))")
+
         for _ in 0..<Self.prepopulateCount {
             let event = UserEvent.random(in: -Self.timeSpan ... 0)
             let record = UserEventRecord(event)
