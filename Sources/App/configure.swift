@@ -8,12 +8,11 @@ public func configure(_ app: Application) throws {
     app.databases.use(.sqlite(.memory), as: .sqlite)
     
     app.migrations.add(CreateUserEventRecordTable.migration)
-    if app.environment == .testing {
+    if app.environment == .development {
         app.migrations.add(PopulateWithRandomUserEvents())
     }
     
     try app.autoMigrate().wait()
-
     
     // register routes
     try routes(app)
