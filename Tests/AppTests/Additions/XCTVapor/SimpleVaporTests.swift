@@ -12,10 +12,10 @@ import XCTVapor
 /// and offers a makeSUT() method that configures the app
 class SimpleVaporTests: XCTVaporTests {
     
-    public class var environment: ()->Environment { { .testing } }
-    
+    public class var environment: Environment { .testing }
+
     override class func setUp() {
-        XCTVapor.app = { Application(environment()) }
+        XCTVapor.app = { Application(environment) }
     }
     
     func makeSUT() throws -> Application {

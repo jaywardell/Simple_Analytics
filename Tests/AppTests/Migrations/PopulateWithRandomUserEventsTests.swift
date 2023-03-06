@@ -11,7 +11,7 @@ import XCTVapor
 final class PopulateWithRandomUserEventsTests: SimpleVaporTests {
 
     private static let env = Environment(name: Environment.testing.name, arguments: [PopulateWithRandomUserEvents.prepopulate])
-    override class var environment: ()->Environment { { env } }
+    override class var environment: Environment { env }
 
     // really just makign sure that configure() reads the environment correctly
     func test_proper_environment_is_no_set_before_application_is_configured() throws {
