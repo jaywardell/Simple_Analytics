@@ -6,7 +6,7 @@ import FluentSQLiteDriver
 public func configure(_ app: Application) throws {
 
     app.databases.use(.sqlite(.memory), as: .sqlite)
-    app.migrations.add(CreateUserEventRecordTable())
+    app.migrations.add(CreateUserEventRecordTable.migration)
     try app.autoMigrate().wait()
 
     

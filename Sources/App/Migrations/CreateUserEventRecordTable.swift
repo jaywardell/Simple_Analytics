@@ -8,7 +8,9 @@
 import Vapor
 import FluentKit
 
-struct CreateUserEventRecordTable: AsyncMigration {
+enum CreateUserEventRecordTable: AsyncMigration {
+    
+    case migration
     
     func prepare(on database: FluentKit.Database) async throws {
         try await database.schema(UserEventRecord.usereventrecords)
