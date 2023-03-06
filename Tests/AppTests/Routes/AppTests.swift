@@ -1,16 +1,8 @@
 @testable import App
 import XCTVapor
 
-final class AppTests: XCTVaporTests {
+final class AppTests: SimpleVaporTests {
     
-    override class func setUp() {
-        XCTVapor.app = { Application(.testing) }
-    }
-    
-    func makeSUT(configuration: ((Application) throws ->())? = nil) throws -> Application {
-        try (configuration ?? configure)(app)
-        return app
-    }
     
     func test_hello_returns_404() throws {
 
