@@ -18,9 +18,8 @@ class SimpleVaporTests: XCTVaporTests {
         XCTVapor.app = { Application(environment()) }
     }
     
-    func makeSUT(additionalConfiguration: (Application) throws ->() = { _ in }) throws -> Application {
+    func makeSUT() throws -> Application {
         try configure(app)
-        try additionalConfiguration(app)
         return app
     }
 }
