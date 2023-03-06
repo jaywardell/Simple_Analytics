@@ -22,8 +22,5 @@ enum CreateUserEventRecordTable: AsyncMigration {
             .create()
     }
     
-    func revert(on database: FluentKit.Database) async throws {
-        
-    }
-
+    func revert(on database: FluentKit.Database) async throws {}
 }
