@@ -25,4 +25,13 @@ final class PopulateWithRandomUserEventsTests: SimpleVaporTests {
         }
     }
 
+    func test_populates_database_with_expected_count() throws {
+        let sut = try makeSUT()
+                
+        try sut.test(.GET, UsersController.countPath) { response in
+            let received = try JSONDecoder().decode(Int.self, from: response.body)
+            XCTAssertEqual(received, PopulateWithRandomUserEvents.prepopulateCount)
+        }
+    }
+
 }
