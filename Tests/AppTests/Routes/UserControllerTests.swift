@@ -9,32 +9,24 @@
 import XCTVapor
 import SimpleAnalyticsTypes
 
-final class UserControllerTests: XCTestCase {
-    
-    private var sut: Application!
-    
-    override func setUp() {
-        sut = Application(.testing)
-        try! configure(sut)
-   }
-    
-    override func tearDown() {
-        sut.shutdown()
-    }
-    
+final class UserControllerTests: SimpleVaporTests {
+        
     // MARK: - GET - list
     func test_get_list_returns_200() throws {
+        let sut = try makeSUT()
+        
         try sut.test(.GET, UsersController.users) { response in
             XCTAssertEqual(response.status, .ok)
         }
     }
     
     func test_get_list_returns_all_users_that_have_used_app() throws {
-                
+        let sut = try makeSUT()
+        
         let userIDs = (0..<10).map { _ in UUID() }
         let expected = userIDs.map(\.uuidString)
         let sent = userIDs.map { UserEvent.random(for: $0, at: Date()) }
-        try post(sent)
+        try sut.post(sent)
         
         try sut.test(.GET, UsersController.users) { response in
             let received = try JSONDecoder().decode([String].self, from: response.body)
@@ -43,11 +35,12 @@ final class UserControllerTests: XCTestCase {
     }
 
     func test_get_list_returns_each_user_that_has_used_app_once() throws {
-        
+        let sut = try makeSUT()
+
         let user = UUID()
         
         let sent = (0..<10).map { _ in UserEvent.random(for: user, at: Date().addingTimeInterval(.random(in: 60..<3600))) }
-        try post(sent)
+        try sut.post(sent)
         
         try sut.test(.GET, UsersController.users) { response in
             let received = try JSONDecoder().decode([String].self, from: response.body)
@@ -58,18 +51,21 @@ final class UserControllerTests: XCTestCase {
     // MARK: - GET - count
     
     func test_get_count_returns_200() throws {
+        let sut = try makeSUT()
+
         try sut.test(.GET, UsersController.countPath) { response in
             XCTAssertEqual(response.status, .ok)
         }
     }
 
     func test_get_count_returns_count_of_users_that_have_used_app() throws {
-        
+        let sut = try makeSUT()
+
         let users = (0..<Int.random(in: 3..<20)).map { _ in UUID() }
 
         // send twice so that each user has 2 events in the database
-        try post(users.map { UserEvent.random(for: $0, at: Date()) })
-        try post(users.map { UserEvent.random(for: $0, at: Date()) })
+        try sut.post(users.map { UserEvent.random(for: $0, at: Date()) })
+        try sut.post(users.map { UserEvent.random(for: $0, at: Date()) })
 
         try sut.test(.GET, UsersController.countPath) { response in
             let received = try JSONDecoder().decode(Int.self, from: response.body)
@@ -78,7 +74,8 @@ final class UserControllerTests: XCTestCase {
     }
 
     func test_get_count_returns_count_of_users_that_have_used_app_and_sent_a_given_action() throws {
-        
+        let sut = try makeSUT()
+
         let user1 = UUID()
         let user2 = UUID()
         let user3 = UUID()
@@ -90,7 +87,7 @@ final class UserControllerTests: XCTestCase {
             UserEvent(date: Date(), action: .stop, userID: user3),
             UserEvent(date: Date(), action: .stop, userID: user3),
         ]
-        try post(events)
+        try sut.post(events)
         
         try sut.test(.GET, countPath(action: .start)) { response in
             let received = try JSONDecoder().decode(Int.self, from: response.body)
@@ -100,7 +97,8 @@ final class UserControllerTests: XCTestCase {
     }
 
     func test_get_count_returns_count_of_all_users_that_used_app_in_date_range() throws {
-                
+        let sut = try makeSUT()
+
         let now = Date()
             
         let users = [UUID(), UUID(), UUID()]
@@ -112,7 +110,7 @@ final class UserControllerTests: XCTestCase {
         ]
         }
         
-        try post(sent)
+        try sut.post(sent)
         
         let startOfDay = Calendar.current.startOfDay(for: now)
         let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
@@ -123,7 +121,8 @@ final class UserControllerTests: XCTestCase {
     }
     
     func test_get_count_returns_count_of_all_users_that_have_had_flag_turned_on() throws {
-                
+        let sut = try makeSUT()
+
         let now = Date()
             
         let users = (0..<30).map { _ in UUID() }
@@ -133,7 +132,7 @@ final class UserControllerTests: XCTestCase {
         }
         let expected = sent.filter { $0.flag == true }.count
 
-        try post(sent)
+        try sut.post(sent)
         
         
         try sut.test(.GET, countPath(flag: true)) { response in
@@ -143,7 +142,8 @@ final class UserControllerTests: XCTestCase {
     }
 
     func test_get_count_returns_count_of_all_users_that_used_app_in_date_range_with_a_given_action() throws {
-                
+        let sut = try makeSUT()
+
         let now = Date()
         let action = UserEvent.Action.pause
 
@@ -164,7 +164,7 @@ final class UserControllerTests: XCTestCase {
             .filter { $0.timestamp <= endOfDay.timeIntervalSinceReferenceDate }
         let usersWhoSentAction = Set(eventsWithActionOnDate.map(\.userID))
         
-        try post(sent)
+        try sut.post(sent)
         
         try sut.test(.GET, countPath(startDate: startOfDay, endDate: endOfDay, action: action)) { response in
             let received = try JSONDecoder().decode(Int.self, from: response.body)
@@ -175,19 +175,22 @@ final class UserControllerTests: XCTestCase {
     // MARK: - GET - summary
     
     func test_get_summary_returns_200() throws {
+        let sut = try makeSUT()
+
         try sut.test(.GET, UsersController.summaryPath) { response in
             XCTAssertEqual(response.status, .ok)
         }
     }
 
     func test_get_summary_returns_count_for_each_user_that_has_used_the_app() throws {
-        
+        let sut = try makeSUT()
+
         let users = (0..<30).map { _ in UUID() }
 
         var counts = [String:Int]()
         for user in users {
             try (0..<Int.random(in: 0..<3)).forEach { _ in
-                try post([UserEvent.random(for: user, at: Date().addingTimeInterval(.random(in: -1000 ... 1000)))])
+                try sut.post([UserEvent.random(for: user, at: Date().addingTimeInterval(.random(in: -1000 ... 1000)))])
                 counts[user.uuidString] = counts[user.uuidString, default: 0] + 1
             }
         }
@@ -199,7 +202,8 @@ final class UserControllerTests: XCTestCase {
     }
 
     func test_get_summary_returns_count_for_each_user_that_has_used_the_app_and_passed_the_given_flag() throws {
-        
+        let sut = try makeSUT()
+
         let users = (0..<30).map { _ in UUID() }
         let flag = true
         
@@ -207,7 +211,7 @@ final class UserControllerTests: XCTestCase {
         for user in users {
             try (0..<Int.random(in: 0..<10)).forEach { _ in
                 let event = UserEvent.random(for: user, at: Date().addingTimeInterval(.random(in: -.oneDay ... .oneDay)))
-                try post([event])
+                try sut.post([event])
                 if event.flag == flag {
                     counts[user.uuidString] = counts[user.uuidString, default: 0] + 1
                 }
@@ -221,7 +225,8 @@ final class UserControllerTests: XCTestCase {
     }
 
     func test_get_summary_returns_count_for_each_user_that_has_used_the_app_in_the_given_date_range() throws {
-        
+        let sut = try makeSUT()
+
         let users = (0..<30).map { _ in UUID() }
         
         let now = Date()
@@ -232,7 +237,7 @@ final class UserControllerTests: XCTestCase {
         for user in users {
             try (0..<Int.random(in: 0..<10)).forEach { _ in
                 let event = UserEvent.random(for: user, at: Date().addingTimeInterval(.random(in: -.oneDay ... .oneDay)))
-                try post([event])
+                try sut.post([event])
                 if event.timestamp >= startOfDay.timeIntervalSinceReferenceDate && event.timestamp <= endOfDay.timeIntervalSinceReferenceDate {
                     counts[user.uuidString] = counts[user.uuidString, default: 0] + 1
                 }
@@ -248,13 +253,15 @@ final class UserControllerTests: XCTestCase {
     // MARK: - Bad Requests
     
     func test_post_returns_404() throws {
-        
+        let sut = try makeSUT()
+
         try sut.test(.POST, UsersController.users, afterResponse: { res in
             XCTAssertEqual(res.status, .notFound)
         })
     }
 
     func test_put_returns_404() throws {
+        let sut = try makeSUT()
 
         try sut.test(.PUT, UsersController.users, afterResponse: { res in
             XCTAssertEqual(res.status, .notFound)
@@ -262,6 +269,7 @@ final class UserControllerTests: XCTestCase {
     }
 
     func test_delete_returns_404() throws {
+        let sut = try makeSUT()
 
         try sut.test(.DELETE, UsersController.users, afterResponse: { res in
             XCTAssertEqual(res.status, .notFound)
@@ -271,13 +279,15 @@ final class UserControllerTests: XCTestCase {
     // MARK: - count
     
     func test_post_count_returns_404() throws {
-        
+        let sut = try makeSUT()
+
         try sut.test(.POST, countPath(), afterResponse: { res in
             XCTAssertEqual(res.status, .notFound)
         })
     }
 
     func test_put_count_returns_404() throws {
+        let sut = try makeSUT()
 
         try sut.test(.PUT, countPath(), afterResponse: { res in
             XCTAssertEqual(res.status, .notFound)
@@ -285,6 +295,7 @@ final class UserControllerTests: XCTestCase {
     }
 
     func test_delete_count_returns_404() throws {
+        let sut = try makeSUT()
 
         try sut.test(.DELETE, countPath(), afterResponse: { res in
             XCTAssertEqual(res.status, .notFound)
@@ -294,13 +305,15 @@ final class UserControllerTests: XCTestCase {
     // MARK: - summary
 
     func test_post_summary_returns_404() throws {
-        
+        let sut = try makeSUT()
+
         try sut.test(.POST, summaryPath(), afterResponse: { res in
             XCTAssertEqual(res.status, .notFound)
         })
     }
 
     func test_put_summary_returns_404() throws {
+        let sut = try makeSUT()
 
         try sut.test(.PUT, summaryPath(), afterResponse: { res in
             XCTAssertEqual(res.status, .notFound)
@@ -308,6 +321,7 @@ final class UserControllerTests: XCTestCase {
     }
 
     func test_delete_summary_returns_404() throws {
+        let sut = try makeSUT()
 
         try sut.test(.DELETE, summaryPath(), afterResponse: { res in
             XCTAssertEqual(res.status, .notFound)
@@ -316,11 +330,11 @@ final class UserControllerTests: XCTestCase {
 
     // MARK: - Helpers
     
-    func post(_ userEvents: [UserEvent]) throws {
-        try userEvents.forEach {
-            _ = try sut.sendRequest(.POST, UserEventController.userevent, headers: .content_type_json, body: $0.toByteBuffer())
-        }
-    }
+//    func post(_ userEvents: [UserEvent]) throws {
+//        try userEvents.forEach {
+//            _ = try sut.sendRequest(.POST, UserEventController.userevent, headers: .content_type_json, body: $0.toByteBuffer())
+//        }
+//    }
     
     func countPath(startDate: Date? = nil,
                   endDate: Date? = nil,
