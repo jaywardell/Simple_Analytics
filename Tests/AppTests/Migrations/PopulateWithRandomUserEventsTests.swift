@@ -13,14 +13,16 @@ final class PopulateWithRandomUserEventsTests: SimpleVaporTests {
     private static let env = Environment(name: Environment.testing.name, arguments: [PopulateWithRandomUserEvents.prepopulate])
     override class var environment: Environment { env }
 
-    // really just makign sure that configure() reads the environment correctly
-    func test_proper_environment_is_no_set_before_application_is_configured() throws {
-        XCTAssertFalse(PopulateWithRandomUserEvents.hasRun)
+    
+    // MARK: - Results of Prepopulation
+    
+    func test_populates_database() throws {
+        let sut = try makeSUT()
+                
+        try sut.test(.GET, UsersController.countPath) { response in
+            let received = try JSONDecoder().decode(Int.self, from: response.body)
+            XCTAssert(received > 0)
+        }
     }
 
-    // really just makign sure that configure() reads the environment correctly
-    func test_proper_environment_is_set() throws {
-        _ = try makeSUT()
-        XCTAssert(PopulateWithRandomUserEvents.hasRun)
-    }
 }
