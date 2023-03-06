@@ -1,5 +1,5 @@
 //
-//  CreateUserEventRecords.swift
+//  CreateUserEventRecord.swift
 //  
 //
 //  Created by Joseph Wardell on 3/2/23.
@@ -8,7 +8,7 @@
 import Vapor
 import FluentKit
 
-struct CreateUserEventRecords: AsyncMigration {
+struct CreateUserEventRecordTable: AsyncMigration {
     
     func prepare(on database: FluentKit.Database) async throws {
         try await database.schema(UserEventRecord.usereventrecords)
