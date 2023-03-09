@@ -9,11 +9,22 @@ import Vapor
 import FluentKit
 import SimpleAnalyticsTypes
 
+extension Int {
+    static var prepopulatedUserCount: Int { 10 }
+    static var prepopulatedEventCount: Int { 100 }
+}
+
+extension TimeInterval {
+    static var prepopulatedTimeSpan: TimeInterval { 24*2600*365*3 }
+}
+
+// MARK: -
+
 final class PopulateWithRandomUserEvents: AsyncMigration {
-        
-    @Environment.Key("count", 10_000) var count: Int
-    @Environment.Key("users", 10) var users: Int
-    @Environment.Key("timespan", 24*2600*365*3) var timespan: TimeInterval
+            
+    @Environment.Key("count", .prepopulatedEventCount) var count: Int
+    @Environment.Key("users", .prepopulatedUserCount) var userCount: Int
+    @Environment.Key("timespan", .prepopulatedTimeSpan) var timespan: TimeInterval
 
     static var prepopulate: String { "prepopulate_with_random" }
     static var prepopulateCount: Int { 10_000 }
@@ -31,13 +42,17 @@ final class PopulateWithRandomUserEvents: AsyncMigration {
     
     func prepare(on database: FluentKit.Database) async throws {
 
-        log("Populating database with \(count) events for \(users) users, starting at \(Date().addingTimeInterval(-timespan))")
+        log("Populating database with random events")
 
-        for _ in 0..<Self.prepopulateCount {
-            let event = UserEvent.random(in: -Self.timeSpan ... 0)
+        let users = (0..<userCount).map { _ in UUID() }
+        
+        for _ in 0..<count {
+            let event = UserEvent.random(for: users.randomElement()!, in: -timespan ... 0)
             let record = UserEventRecord(event)
             try await record.create(on: database)
         }
+
+        log("Populated database with \(count) events for \(userCount) users, starting at \(Date().addingTimeInterval(-timespan))")
     }
     
     func revert(on database: FluentKit.Database) async throws {}

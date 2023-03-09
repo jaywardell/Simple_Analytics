@@ -29,9 +29,9 @@ final class PopulateWithRandomUserEventsTests: SimpleVaporTests {
     func test_populates_database_with_expected_count() throws {
         let sut = try makeSUT()
                 
-        try sut.test(.GET, UsersController.countPath) { response in
+        try sut.test(.GET, countPath()) { response in
             let received = try JSONDecoder().decode(Int.self, from: response.body)
-            XCTAssertEqual(received, PopulateWithRandomUserEvents.prepopulateCount)
+            XCTAssertEqual(received, .prepopulatedEventCount)
         }
     }
 
@@ -40,11 +40,11 @@ final class PopulateWithRandomUserEventsTests: SimpleVaporTests {
                 
         let now = Date()
         
-        let threeYearsAgo = now.addingTimeInterval(-PopulateWithRandomUserEvents.timeSpan)
+        let threeYearsAgo = now.addingTimeInterval(-.prepopulatedTimeSpan)
         let endOfDay = Calendar.current.startOfDay(for: now.addingTimeInterval(.oneDay))
         try sut.test(.GET, countPath(startDate: threeYearsAgo, endDate: endOfDay)) { response in
             let received = try JSONDecoder().decode(Int.self, from: response.body)
-            XCTAssertEqual(received, PopulateWithRandomUserEvents.prepopulateCount)
+            XCTAssertEqual(received, .prepopulatedEventCount)
         }
     }
 
@@ -54,7 +54,7 @@ final class PopulateWithRandomUserEventsTests: SimpleVaporTests {
                   action: UserEvent.Action? = nil,
                   flag: Bool? = nil) -> String {
         
-        endpoint(UsersController.countPath, startDate: startDate, endDate: endDate, userID: userID, action: action, flag: flag)
+        endpoint(UserEventsController.countPath, startDate: startDate, endDate: endDate, userID: userID, action: action, flag: flag)
     }
 
 }
