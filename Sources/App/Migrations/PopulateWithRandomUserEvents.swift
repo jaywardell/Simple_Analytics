@@ -39,7 +39,3 @@ final class PopulateWithRandomUserEvents: AsyncMigration {
     func revert(on database: FluentKit.Database) async throws {
     }
 }
-
-fileprivate extension UserEvent {
-    
-}
