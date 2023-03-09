@@ -11,6 +11,10 @@ import SimpleAnalyticsTypes
 
 final class PopulateWithRandomUserEvents: AsyncMigration {
         
+    @Environment.Key("count", 10_000) var count: Int
+    @Environment.Key("users", 10) var users: Int
+    @Environment.Key("timespan", 24*2600*365*3) var timespan: TimeInterval
+
     static var prepopulate: String { "prepopulate_with_random" }
     static var prepopulateCount: Int { 10_000 }
     static var timeSpan: TimeInterval { 24*2600*365*3 }
@@ -27,7 +31,7 @@ final class PopulateWithRandomUserEvents: AsyncMigration {
     
     func prepare(on database: FluentKit.Database) async throws {
 
-        log("Populating database with \(Self.prepopulateCount) events starting at \(Date().addingTimeInterval(-Self.timeSpan))")
+        log("Populating database with \(count) events for \(users) users, starting at \(Date().addingTimeInterval(-timespan))")
 
         for _ in 0..<Self.prepopulateCount {
             let event = UserEvent.random(in: -Self.timeSpan ... 0)
@@ -38,3 +42,4 @@ final class PopulateWithRandomUserEvents: AsyncMigration {
     
     func revert(on database: FluentKit.Database) async throws {}
 }
+
