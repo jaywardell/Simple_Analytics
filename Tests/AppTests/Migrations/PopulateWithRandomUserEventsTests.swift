@@ -11,7 +11,7 @@ import SimpleAnalyticsTypes
 
 final class PopulateWithRandomUserEventsTests: SimpleVaporTests {
 
-    private static let env = Environment(name: Environment.testing.name, arguments: [PopulateWithRandomUserEvents.prepopulate])
+    private static let env = Environment(name: PopulateWithRandomUserEvents.prepopulate, arguments: Environment.testing.arguments)
     override class var environment: Environment { env }
 
     

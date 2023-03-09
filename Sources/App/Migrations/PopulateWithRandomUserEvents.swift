@@ -16,8 +16,8 @@ final class PopulateWithRandomUserEvents: AsyncMigration {
     static var timeSpan: TimeInterval { 24*2600*365*3 }
     private var createEventIDs = [UUID]()
     
-    static func shouldPrepopulate() -> Bool {
-        Environment.get("prepopulate") == PopulateWithRandomUserEvents.prepopulate
+    static func shouldPrepopulate(for app: Application) -> Bool {
+        app.environment.name == PopulateWithRandomUserEvents.prepopulate
     }
     
     let logger = Logger(label: String(describing: PopulateWithRandomUserEvents.self))
