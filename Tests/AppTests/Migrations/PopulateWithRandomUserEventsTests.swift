@@ -48,6 +48,8 @@ final class PopulateWithRandomUserEventsTests: SimpleVaporTests {
         }
     }
 
+    // MARK: - Helpers
+    
     func countPath(startDate: Date? = nil,
                   endDate: Date? = nil,
                   userID: UUID? = nil,
